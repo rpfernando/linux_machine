@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include "my_system.h"
 
 #define MAX_USER_LEN 100
 #define MAX_PASS_LEN 100
@@ -8,23 +10,24 @@
 #define SEPARATOR ":"
 
 int validate(char* user, char* pass);
-void open_sh();
+int open_sh();
 
 int main() {
     char user[MAX_USER_LEN];
     char pass[MAX_PASS_LEN];
 
     do {
-        printf("login: ");
-        scanf("%s",&user);
+        printf("Insert user and password to start shell\n");
+        do {
+            printf("login: ");
+            scanf("%s", user);
 
-        printf("pass: ");
-        scanf("%s",&pass);
-    } while (validate(user, pass) != 0);
+            printf("pass: ");
+            scanf("%s", pass);
+        } while (validate(user, pass) != 0);
+    } while (open_sh() != MESSAGE_KILL_PARENT);
 
-    open_sh();
-
-    return 0;
+    exit(MESSAGE_KILL_PARENT);
 }
 
 
@@ -62,6 +65,6 @@ int validate(char* user, char* pass) {
     return 1;
 }
 
-void open_sh() {
-
+int open_sh() {
+    // TODO: find the correct way to open shell
 }
