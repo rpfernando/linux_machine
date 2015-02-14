@@ -1,21 +1,21 @@
 Basic Shell
 -----------
 
-# Makefile instructions
+## Makefile instructions
 
-## First Usage
+### First Usage
 ```
     make dirs
     make all
 ```
 
-## To compile <sh|getty|init>
+### To compile <sh|getty|init>
 ```
     make my_system
     make <sh|getty|init>
 ```
 
-## To clean `make clean`
+### To clean `make clean`
 
 
-## To run `./exe/<sh|getty|init>`
+### To run `./exe/<sh|getty|init>`
