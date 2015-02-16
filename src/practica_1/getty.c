@@ -66,5 +66,5 @@ int validate(char* user, char* pass) {
 }
 
 int open_sh() {
-    // TODO: find the correct way to open shell
+    return my_system("./exe/sh", NULL);;
 }
