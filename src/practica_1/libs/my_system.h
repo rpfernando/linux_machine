@@ -4,8 +4,8 @@
     int my_system(char* cmd, char args[]);
 
 // Define MESSAGE number
-    #define MESSAGE_OK          3000
-    #define MESSAGE_KILL_PARENT 3001
+    #define MESSAGE_OK          0
+    #define MESSAGE_KILL_PARENT 101
     #define EXE_DIR "/var/vagrant/src/practica_1/exe"
     #define EXE_SH "./var/vagrant/src/practica_1/exe/sh"
 
