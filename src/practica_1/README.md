@@ -15,7 +15,9 @@ Basic Shell
     make <sh|getty|init>
 ```
 
-### To clean `make clean`
+### To clean
+    `make clean`
 
 
-### To run `./exe/<sh|getty|init>`
+### To run
+    `./exe/<sh|getty|init>`
