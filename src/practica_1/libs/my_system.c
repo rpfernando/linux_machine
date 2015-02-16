@@ -8,10 +8,9 @@ int my_system(char* cmd, char args[]) {
     pid = fork();
 
     if(pid == 0) {
-        printf("Start cmd: %s\n", cmd);
         execv(cmd, args);
     }
-    wait(&status);
+    waitpid(pid, &status, 0);
 
-    return status;
+    return status/0x100;
 }
