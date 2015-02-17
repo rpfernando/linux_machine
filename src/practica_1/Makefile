@@ -2,6 +2,9 @@ LIBS_DIR=libs
 EXE_DIR=exe
 OBJECT_DIR=obj
 
+all: clean dirs my_system sh getty init
+	@./exe/init
+
 sh:
 	@gcc -iquote $(LIBS_DIR) -c sh.c
 	@mv sh.o $(OBJECT_DIR)
@@ -24,9 +27,6 @@ my_system:
 clean:
 	@rm -f obj/*.o
 	@rm -f exe/*
-
-all: clean dirs my_system sh getty init
-	./exe/init
 
 dirs:
 	@mkdir -p $(LIBS_DIR)
