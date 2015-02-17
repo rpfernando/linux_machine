@@ -15,19 +15,18 @@ int export();
 int echo();
 
 // Global vars
-char cmd[MAX_LEN_CALL];
-char args[MAX_LEN_CALL];
+char cmd_global[MAX_LEN_CALL];
+char args_global[MAX_LEN_CALL];
+int args_len_global = -1;
 
 typedef struct{
     char* name;
-    void (*callback)(char*);
+    void (*callback)();
 } CALLBACK_STRUCT;
 
 const CALLBACK_STRUCT CMDS[] = {
     {"exit", my_exit},
     {"shutdown", shutdown},
-    {"export", export},
-    {"echo", echo},
     {NULL, NULL}
 };
 
@@ -40,10 +39,10 @@ int main() {
         gets(flat_call);
         get_cmd_with_args(flat_call);
 
-        if (strcmp(cmd, "") != 0) {
+        if (strcmp(cmd_global, "") != 0) {
             for(i = 0; CMDS[i].name != NULL; i++) {
-                if (strcmp(cmd, CMDS[i].name) == 0) {
-                    (*(CMDS[i].callback))(args);
+                if (strcmp(cmd_global, CMDS[i].name) == 0) {
+                    (*(CMDS[i].callback))();
                 }
                  // else {
                     // TODO: create function to pass args as char to char array
@@ -65,12 +64,12 @@ int shutdown() {
 }
 
 int export() {
-    printf("%s\n", args);
+    printf("%s\n", args_global);
     return 0;
 }
 
 int echo() {
-    printf("%s\n", args);
+    printf("%s\n", args_global);
     return 0;
 }
 
@@ -90,8 +89,9 @@ void get_cmd_with_args(char* flat_call) {
 
     // If first char is end of line
     if (flat_call[i] == '\n' || flat_call[i] == '\0') {
-        strcpy(cmd, "");
-        strcpy(args, "");
+        strcpy(cmd_global, "");
+        strcpy(args_global, "");
+        args_len_global -1;
         return;
     }
 
@@ -107,14 +107,21 @@ void get_cmd_with_args(char* flat_call) {
 
     if (cmd_end != -1) {
         if (args_start != -1) {
-            strcpy(cmd, strndup(flat_call + cmd_start, cmd_end - cmd_start + 1));
-            strcpy(args, strndup(flat_call + args_start, i - args_start + 1));
+            strcpy(cmd_global, strndup(flat_call + cmd_start, cmd_end - cmd_start + 1));
+            strcpy(args_global, strndup(flat_call + args_start, i - args_start + 1));
+            args_len_global = i - args_start + 1;
+            while(args_global[args_len_global] == '\n' ||
+                    args_global[args_len_global] == '\0' ||
+                    args_global[args_len_global] == ' ') args_len_global--;
+            args_global[++args_len_global] = '\0';
         } else {
-            strcpy(cmd, strndup(flat_call + cmd_start, cmd_end - cmd_start + 1));
-            strcpy(args, "");
+            strcpy(cmd_global, strndup(flat_call + cmd_start, cmd_end - cmd_start + 1));
+            args_len_global = -1;
+            strcpy(args_global, "");
         }
     } else {
-        strcpy(cmd, strndup(flat_call + cmd_start, i - cmd_start + 1));
-        strcpy(args, "");
+        strcpy(cmd_global, strndup(flat_call + cmd_start, i - cmd_start + 1));
+        args_len_global = -1;
+        strcpy(args_global, "");
     }
 }
