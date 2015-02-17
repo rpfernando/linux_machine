@@ -74,6 +74,9 @@ int echo() {
     return 0;
 }
 
+/*
+ * Calls function if there was no callback registered.
+ */
 void system_function(){
     char* vars[MAX_LEN_CALL];
     char* args_aux;
@@ -100,9 +103,13 @@ void system_function(){
 }
 
 /*
- * Returns:
- *      Array[2] - [CMD, args] where args is char*
- *      NULL - ERROR or no command
+ * Change global variables cmd_global and args_global:
+ * Return cmd_global values:
+ *      First word in flat call
+ *      "" - ERROR or no command
+ * Return args_global values:
+ *      Second word untill end of line
+ *      "" - ERROR or no arguments
  */
 void get_cmd_with_args(char* flat_call) {
     int cmd_start = -1, cmd_end = -1;
