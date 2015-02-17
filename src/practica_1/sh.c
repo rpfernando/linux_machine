@@ -9,7 +9,7 @@
 void get_cmd_with_args(char*);
 int args_str_to_array(char**);
 void free_args_array(char**, int);
-void system_function();
+int system_function();
 
 // Commands callbacks
 int my_exit();
@@ -51,7 +51,11 @@ int main() {
                     has_callback = 1;
                 }
             }
-            if (!has_callback) system_function();
+            if (!has_callback) {
+                if(system_function() == MESSAGE_CMD_NOT_FOUND) {
+                    printf("Command not found.\n");
+                }
+            }
         }
     }
 
@@ -79,20 +83,21 @@ int echo() {
 /*
  * Calls function if there was no callback registered.
  */
-void system_function(){
+int system_function(){
     char* vars[MAX_LEN_CALL];
-    int vars_len;
+    int vars_len, status;
 
     vars_len = args_str_to_array(vars);
 
     if (args_len_global != -1 && vars[vars_len-1][0] == '&') {
         vars[vars_len-1] = NULL;
-        background_call(cmd_global, vars);
+        status = background_call(cmd_global, vars);
     } else {
-        foreground_call(cmd_global, vars);
+        status = foreground_call(cmd_global, vars);
     }
 
     free_args_array(vars, vars_len);
+    return status;
 }
 
 /*
