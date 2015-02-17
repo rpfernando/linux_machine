@@ -7,6 +7,7 @@
 
 // Function prototypes
 void get_cmd_with_args(char*);
+void system_function();
 
 // Valid commands
 int my_exit();
@@ -33,6 +34,7 @@ const CALLBACK_STRUCT CMDS[] = {
 int main() {
     char flat_call[MAX_LEN_CALL];
     int i = 0;
+    int has_callback = 0;
 
     while (1) {
         printf("$ ");
@@ -40,15 +42,14 @@ int main() {
         get_cmd_with_args(flat_call);
 
         if (strcmp(cmd_global, "") != 0) {
+            has_callback = 0;
             for(i = 0; CMDS[i].name != NULL; i++) {
                 if (strcmp(cmd_global, CMDS[i].name) == 0) {
                     (*(CMDS[i].callback))();
+                    has_callback = 1;
                 }
-                 // else {
-                    // TODO: create function to pass args as char to char array
-                    // my_system(cmd, NULL);
-                // }
             }
+            if (!has_callback) system_function();
         }
     }
 
@@ -73,6 +74,30 @@ int echo() {
     return 0;
 }
 
+void system_function(){
+    char* vars[MAX_LEN_CALL];
+    char* args_aux;
+    int vars_len;
+    int j;
+
+    vars[0] = cmd_global;
+    args_aux = args_global;
+    for(vars_len = 1; args_aux[0] != '\0'; j = 0, vars_len++) {
+        while(args_aux[j] != ' ' && args_aux[j] != '\0') j++;
+        vars[vars_len] = strndup(args_aux, j);
+        args_aux += j + 1;
+    }
+    vars[vars_len] = NULL;
+
+    if (args_len_global != -1 && vars[vars_len-1][0] == '&') {
+        vars[vars_len-1] = NULL;
+        background_call(cmd_global, vars);
+    } else {
+        foreground_call(cmd_global, vars);
+    }
+
+    for(j = 1; j < vars_len; j++) free(vars[j]);
+}
 
 /*
  * Returns:
