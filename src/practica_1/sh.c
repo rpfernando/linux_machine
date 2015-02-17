@@ -164,7 +164,7 @@ int args_str_to_array(char** vars) {
     for(vars_len = 1; args_aux[0] != '\0'; j = 0, vars_len++) {
         while(args_aux[j] != ' ' && args_aux[j] != '\0') j++;
         vars[vars_len] = strndup(args_aux, j);
-        args_aux += j + 1;
+        args_aux += j;
     }
     vars[vars_len] = NULL;
 
