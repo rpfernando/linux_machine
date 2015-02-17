@@ -25,14 +25,10 @@ clean:
 	@rm obj/*.o
 	@rm exe/*
 
-all:
-	@clean
-	@my_system
-	@sh
-	@getty
-	@init
+all: clean dirs my_system sh getty init
+	./exe/init
 
 dirs:
-	@mkdir $(LIBS_DIR)
-	@mkdir $(EXE_DIR)
-	@mkdir $(OBJECT_DIR)
+	@mkdir $(LIBS_DIR) -p
+	@mkdir $(EXE_DIR) -p
+	@mkdir $(OBJECT_DIR) -p
