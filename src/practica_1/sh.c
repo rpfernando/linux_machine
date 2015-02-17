@@ -7,9 +7,11 @@
 
 // Function prototypes
 void get_cmd_with_args(char*);
+int args_str_to_array(char**);
+void free_args_array(char**, int);
 void system_function();
 
-// Valid commands
+// Commands callbacks
 int my_exit();
 int shutdown();
 int export();
@@ -79,18 +81,9 @@ int echo() {
  */
 void system_function(){
     char* vars[MAX_LEN_CALL];
-    char* args_aux;
     int vars_len;
-    int j;
 
-    vars[0] = cmd_global;
-    args_aux = args_global;
-    for(vars_len = 1; args_aux[0] != '\0'; j = 0, vars_len++) {
-        while(args_aux[j] != ' ' && args_aux[j] != '\0') j++;
-        vars[vars_len] = strndup(args_aux, j);
-        args_aux += j + 1;
-    }
-    vars[vars_len] = NULL;
+    vars_len = args_str_to_array(vars);
 
     if (args_len_global != -1 && vars[vars_len-1][0] == '&') {
         vars[vars_len-1] = NULL;
@@ -99,7 +92,7 @@ void system_function(){
         foreground_call(cmd_global, vars);
     }
 
-    for(j = 1; j < vars_len; j++) free(vars[j]);
+    free_args_array(vars, vars_len);
 }
 
 /*
@@ -156,4 +149,32 @@ void get_cmd_with_args(char* flat_call) {
         args_len_global = -1;
         strcpy(args_global, "");
     }
+}
+
+/*
+ * Returns the len of args in the array.
+ * When the array is no longer needed "free_args_array" must be called.
+ */
+int args_str_to_array(char** vars) {
+    char* args_aux;
+    int vars_len, j;
+
+    vars[0] = cmd_global;
+    args_aux = args_global;
+    for(vars_len = 1; args_aux[0] != '\0'; j = 0, vars_len++) {
+        while(args_aux[j] != ' ' && args_aux[j] != '\0') j++;
+        vars[vars_len] = strndup(args_aux, j);
+        args_aux += j + 1;
+    }
+    vars[vars_len] = NULL;
+
+    return vars_len;
+}
+
+/*
+ * Free the memory allocated by spliting the string into an array.
+ */
+void free_args_array(char ** vars, int vars_len) {
+    int j;
+    for(j = 1; j < vars_len; j++) free(vars[j]);
 }
