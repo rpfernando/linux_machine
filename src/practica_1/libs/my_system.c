@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <stdlib.h>
 #include "my_system.h"
 
 int foreground_call(char* cmd, char* args[]) {

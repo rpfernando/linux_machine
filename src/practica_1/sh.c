@@ -24,7 +24,7 @@ int args_len_global = -1;
 
 typedef struct{
     char* name;
-    void (*callback)();
+    int (*callback)();
 } CALLBACK_STRUCT;
 
 const CALLBACK_STRUCT CMDS[] = {
@@ -116,7 +116,7 @@ void get_cmd_with_args(char* flat_call) {
     if (flat_call[i] == '\n' || flat_call[i] == '\0') {
         strcpy(cmd_global, "");
         strcpy(args_global, "");
-        args_len_global -1;
+        args_len_global = -1;
         return;
     }
 

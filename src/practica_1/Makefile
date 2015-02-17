@@ -22,13 +22,13 @@ my_system:
 	@mv my_system.o $(OBJECT_DIR)
 
 clean:
-	@rm obj/*.o
-	@rm exe/*
+	@rm -f obj/*.o
+	@rm -f exe/*
 
 all: clean dirs my_system sh getty init
 	./exe/init
 
 dirs:
-	@mkdir $(LIBS_DIR) -p
-	@mkdir $(EXE_DIR) -p
-	@mkdir $(OBJECT_DIR) -p
+	@mkdir -p $(LIBS_DIR)
+	@mkdir -p $(EXE_DIR)
+	@mkdir -p $(OBJECT_DIR)
