@@ -66,5 +66,5 @@ int validate(char* user, char* pass) {
 }
 
 int open_sh() {
-    return my_system("./exe/sh", NULL);;
+    return foreground_call("./exe/sh", NULL);;
 }

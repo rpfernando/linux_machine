@@ -1,7 +1,8 @@
 #ifndef _MY_SYSTEM_
 
 // Prototypes for system.c
-    int my_system(char* cmd, char* args[]);
+    int foreground_call(char* cmd, char* args[]);
+    int background_call(char* cmd, char* args[]);
 
 // Define MESSAGE number
     #define MESSAGE_OK          0
