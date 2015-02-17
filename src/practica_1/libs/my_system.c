@@ -10,6 +10,8 @@ int foreground_call(char* cmd, char* args[]) {
 
     if(pid == 0) {
         execvp(cmd, args);
+        // To catch cmd not found
+        exit(MESSAGE_CMD_NOT_FOUND);
     }
     waitpid(pid, &status, 0);
 
@@ -22,6 +24,8 @@ int background_call(char* cmd, char* args[]) {
     pid = fork();
     if (pid == 0) {
         execvp(cmd, args);
+        // To catch cmd not found
+        exit(MESSAGE_CMD_NOT_FOUND);
     }
 
     return MESSAGE_OK;
