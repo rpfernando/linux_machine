@@ -89,7 +89,9 @@ int system_function(){
 
     vars_len = args_str_to_array(vars);
 
-    if (args_len_global != -1 && vars[vars_len-1][0] == '&') {
+    if (vars_len == -1) {
+        printf("Malformed argument.\n");
+    } else if (args_len_global != -1 && vars[vars_len-1][0] == '&') {
         vars[vars_len-1] = NULL;
         status = background_call(cmd_global, vars);
     } else {
@@ -157,19 +159,32 @@ void get_cmd_with_args(char* flat_call) {
 }
 
 /*
- * Returns the len of args in the array.
+ * Returns:
+ *       - The count of args in the array.
+ *       - (-1) for malformed arguments.
  * When the array is no longer needed "free_args_array" must be called.
  */
 int args_str_to_array(char** vars) {
     char* args_aux;
+    char quote_mark;
     int vars_len, j;
 
     vars[0] = cmd_global;
     args_aux = args_global;
-    for(vars_len = 1; args_aux[0] != '\0'; j = 0, vars_len++) {
-        while(args_aux[j] != ' ' && args_aux[j] != '\0') j++;
-        vars[vars_len] = strndup(args_aux, j);
-        args_aux += j;
+    for(vars_len = 1, j = 0; args_aux[0] != '\0'; j = 0, vars_len++) {
+        if(args_aux[0] == '"' || args_aux[0] == '\'') {
+            quote_mark = args_aux[0];
+            for(args_aux += 1; args_aux[j] != quote_mark; j++) {
+                if (args_aux[j] == '\0') return -1;
+            }
+            vars[vars_len] = strndup(args_aux, j);
+        } else {
+            while(args_aux[0] == ' ') args_aux++;
+            while(args_aux[j] != ' ' && args_aux[j] != '\0') j++;
+            vars[vars_len] = strndup(args_aux, j);
+            if (args_aux[j] == '\0') j--;
+        }
+        args_aux += j + 1;
     }
     vars[vars_len] = NULL;
 
@@ -181,5 +196,8 @@ int args_str_to_array(char** vars) {
  */
 void free_args_array(char ** vars, int vars_len) {
     int j;
-    for(j = 1; j < vars_len; j++) free(vars[j]);
+    for(j = 1; j < vars_len + 1; j++) {
+        free(vars[j]);
+        vars[j] = NULL;
+    }
 }
