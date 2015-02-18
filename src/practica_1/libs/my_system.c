@@ -28,5 +28,5 @@ int background_call(char* cmd, char* args[]) {
         exit(MESSAGE_CMD_NOT_FOUND);
     }
 
-    return MESSAGE_OK;
+    return pid;
 }
