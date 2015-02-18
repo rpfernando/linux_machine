@@ -39,6 +39,7 @@ const CALLBACK_STRUCT CMDS[] = {
     {"exit", my_exit},
     {"shutdown", shutdown},
     {"export", export},
+    {"echo", echo},
     {NULL, NULL}
 };
 
@@ -127,7 +128,7 @@ int export() {
 
 int echo() {
     printf("%s\n", args_global);
-    return 0;
+    return MESSAGE_OK;
 }
 
 /*
