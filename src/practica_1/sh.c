@@ -4,12 +4,15 @@
 #include "my_system.h"
 
 #define MAX_LEN_CALL 100
+#define MAX_ENV_VARS 50
 
 // Function prototypes
 void get_cmd_with_args(char*);
 int args_str_to_array(char**);
 void free_args_array(char**, int);
 int system_function();
+void substitute_with_env_vars(char* in);
+void substitute(char* in, char* with, int start, int len);
 
 // Commands callbacks
 int my_exit();
@@ -18,6 +21,10 @@ int export();
 int echo();
 
 // Global vars
+char* environment_vars[MAX_ENV_VARS];
+char* environment_vars_value[MAX_ENV_VARS];
+int environment_vars_count = 0;
+
 char cmd_global[MAX_LEN_CALL];
 char args_global[MAX_LEN_CALL];
 int args_len_global = -1;
@@ -30,6 +37,7 @@ typedef struct{
 const CALLBACK_STRUCT CMDS[] = {
     {"exit", my_exit},
     {"shutdown", shutdown},
+    {"export", export},
     {NULL, NULL}
 };
 
@@ -41,6 +49,7 @@ int main() {
     while (1) {
         printf("$ ");
         gets(flat_call);
+        substitute_with_env_vars(flat_call);
         get_cmd_with_args(flat_call);
 
         if (strcmp(cmd_global, "") != 0) {
@@ -49,6 +58,7 @@ int main() {
                 if (strcmp(cmd_global, CMDS[i].name) == 0) {
                     (*(CMDS[i].callback))();
                     has_callback = 1;
+                    break;
                 }
             }
             if (!has_callback) {
@@ -70,9 +80,44 @@ int shutdown() {
     exit(MESSAGE_KILL_PARENT);
 }
 
+/*
+ * Returns:
+ *       - (0) for no errors.
+ *       - (-1) for malformed arguments.
+ * When the array is no longer needed "free_args_array" must be called.
+ */
 int export() {
-    printf("%s\n", args_global);
-    return 0;
+    char* args_aux;
+    char* env_var;
+    char* env_var_value;
+    int i, len;
+
+    args_aux = args_global;
+
+    for(len = 0; args_aux[len] != ' ' && args_aux[len] != '='; len++) {
+        if(args_aux[len] == '\0') return -1;
+    }
+    env_var = strndup(args_aux, len);
+
+    for(args_aux += len; *args_aux == ' ' || *args_aux == '='; args_aux++) {
+        if(*args_aux == '\0') return -1;
+    }
+
+    for(len = 0; args_aux[len] != ' ' && args_aux[len] != '\0'; len++);
+    env_var_value = strndup(args_aux, len);
+
+    for(i = 0; i < environment_vars_count; i++) {
+        if(strcmp(environment_vars[i], env_var) == 0) {
+            environment_vars_value[i] = env_var_value;
+            return MESSAGE_OK;
+        }
+    }
+
+    environment_vars[environment_vars_count] = env_var;
+    environment_vars_value[environment_vars_count] = env_var_value;
+    environment_vars_count++;
+
+    return MESSAGE_OK;
 }
 
 int echo() {
@@ -93,7 +138,8 @@ int system_function(){
         printf("Malformed argument.\n");
     } else if (args_len_global != -1 && vars[vars_len-1][0] == '&') {
         vars[vars_len-1] = NULL;
-        status = background_call(cmd_global, vars);
+        background_call(cmd_global, vars);
+        status = 0;
     } else {
         status = foreground_call(cmd_global, vars);
     }
@@ -199,5 +245,39 @@ void free_args_array(char ** vars, int vars_len) {
     for(j = 1; j < vars_len + 1; j++) {
         free(vars[j]);
         vars[j] = NULL;
+    }
+}
+
+void substitute_with_env_vars(char* in) {
+    int i, j, k;
+    char* env_var;
+    for(i = 0; in[i] != '\0'; i++) {
+        if(in[i] == '$') {
+            j = i;
+            while(in[j] != ' ' && in[j] != '\0') j++;
+            env_var  = strndup(in + i + 1, j - i);
+            for(k = 0; k < environment_vars_count; k++) {
+                if(strcmp(env_var, environment_vars[k]) == 0) {
+                    substitute(in, environment_vars_value[k], i, j - i);
+                    break;
+                }
+            }
+
+            i = j;
+            free(env_var);
+        }
+    }
+}
+
+void substitute(char* in, char* with, int start, int len) {
+    int with_len;
+    int i;
+
+    with_len = strlen(with);
+    if(with_len <= len) {
+        for(i = start; i < start + with_len; i++) {
+            in[i] = with[i - start];
+        }
+        for(;in[i - 1] != '\0'; i++) in[i] = in[i + len - with_len];
     }
 }
