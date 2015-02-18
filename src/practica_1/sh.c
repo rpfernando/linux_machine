@@ -23,6 +23,7 @@ int echo();
 // Global vars
 char* environment_vars[MAX_ENV_VARS];
 char* environment_vars_value[MAX_ENV_VARS];
+char* PATH = NULL;
 int environment_vars_count = 0;
 
 char cmd_global[MAX_LEN_CALL];
@@ -106,6 +107,10 @@ int export() {
     for(len = 0; args_aux[len] != ' ' && args_aux[len] != '\0'; len++);
     env_var_value = strndup(args_aux, len);
 
+    if(strcmp(env_var, "PATH") == 0) {
+        PATH = env_var_value;
+    }
+
     for(i = 0; i < environment_vars_count; i++) {
         if(strcmp(environment_vars[i], env_var) == 0) {
             environment_vars_value[i] = env_var_value;
@@ -130,6 +135,7 @@ int echo() {
  */
 int system_function(){
     char* vars[MAX_LEN_CALL];
+    char cmd_with_path[MAX_LEN_CALL];
     int vars_len, status;
 
     vars_len = args_str_to_array(vars);
@@ -141,7 +147,14 @@ int system_function(){
         background_call(cmd_global, vars);
         status = 0;
     } else {
-        status = foreground_call(cmd_global, vars);
+        strcpy(cmd_with_path, "./");
+        strcat(cmd_with_path, cmd_global);
+        status = foreground_call(cmd_with_path, vars);
+        if(status == MESSAGE_CMD_NOT_FOUND && PATH != NULL) {
+            strcpy(cmd_with_path, PATH);
+            strcat(cmd_with_path, cmd_global);
+            status = foreground_call(cmd_with_path, vars);
+        }
     }
 
     free_args_array(vars, vars_len);
