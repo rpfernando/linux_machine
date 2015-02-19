@@ -22,7 +22,7 @@ int main() {
             printf("login: ");
             scanf("%s", user);
 
-            printf("pass: ");
+            printf("password: ");
             scanf("%s", pass);
         } while (validate(user, pass) != 0);
     } while (open_sh() != MESSAGE_KILL_PARENT);
