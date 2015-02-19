@@ -3,6 +3,7 @@
 // Prototypes for system.c
     int foreground_call(char* cmd, char* args[]);
     int background_call(char* cmd, char* args[]);
+    int xterm_call(char* cmd);
 
 // Define MESSAGE number
     #define MESSAGE_OK              0
