@@ -269,7 +269,7 @@ void substitute_with_env_vars(char* in) {
         if(in[i] == '$') {
             j = i;
             while(in[j] != ' ' && in[j] != '\0') j++;
-            env_var  = strndup(in + i + 1, j - i);
+            env_var  = strndup(in + i + 1, j - i - 1);
             for(k = 0; k < environment_vars_count; k++) {
                 if(strcmp(env_var, environment_vars[k]) == 0) {
                     substitute(in, environment_vars_value[k], i, j - i);
@@ -293,5 +293,11 @@ void substitute(char* in, char* with, int start, int len) {
             in[i] = with[i - start];
         }
         for(;in[i - 1] != '\0'; i++) in[i] = in[i + len - with_len];
+    } else {
+        i = start + len;
+        while(in[i] != '\0') i++;
+        i += with_len - len;
+        for(;i > start + len; i--) in[i] = in[i + len - with_len];
+        for(i = start; i < start + with_len; i++) in[i] = with[i - start];
     }
 }
