@@ -29,7 +29,7 @@ int main() {
     } while (open_sh() != MESSAGE_KILL_PARENT);
 
 
-    file = fopen("status.txt", 'w');
+    file = fopen("status.txt", "w");
     fputc('1', file);
     fclose(file);
     exit(MESSAGE_KILL_PARENT);

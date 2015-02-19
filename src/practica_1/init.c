@@ -14,12 +14,12 @@ int main () {
 		open_getty();
 
 		// Check if status is kill_parent
-		file = fopen("status.txt", 'r');
+		file = fopen("status.txt", "r");
 		status = fgetc(file);
 		fclose(file);
 
 		// Set flag back for other processes
-		file = fopen("status.txt", 'w');
+		file = fopen("status.txt", "w");
 		fputc('0', file);
 		fclose(file);
 
