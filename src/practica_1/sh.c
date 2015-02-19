@@ -148,8 +148,12 @@ int system_function(){
         background_call(cmd_global, vars);
         status = 0;
     } else {
-        strcpy(cmd_with_path, "./");
-        strcat(cmd_with_path, cmd_global);
+        if(cmd_global[0] != '/') {
+            strcat(cmd_with_path, cmd_global);
+            strcpy(cmd_with_path, "./");
+        } else {
+            strcpy(cmd_with_path, cmd_global);
+        }
         status = foreground_call(cmd_with_path, vars);
         if(status == MESSAGE_CMD_NOT_FOUND && PATH != NULL) {
             strcpy(cmd_with_path, PATH);
