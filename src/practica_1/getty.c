@@ -13,6 +13,7 @@ int validate(char* user, char* pass);
 int open_sh();
 
 int main() {
+    FILE* file;
     char user[MAX_USER_LEN];
     char pass[MAX_PASS_LEN];
 
@@ -27,6 +28,10 @@ int main() {
         } while (validate(user, pass) != 0);
     } while (open_sh() != MESSAGE_KILL_PARENT);
 
+
+    file = fopen("status.txt", 'w');
+    fputc('1', file);
+    fclose(file);
     exit(MESSAGE_KILL_PARENT);
 }
 
