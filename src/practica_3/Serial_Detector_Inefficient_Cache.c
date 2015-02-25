@@ -223,4 +223,5 @@ int main()
 	final_t = clock();
 
 	printf("Tiempo %3.6f segundos\n", ((float)final_t - (float)initial_t) / CLOCKS_PER_SEC);
+    return 0;
 }
