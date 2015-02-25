@@ -2,7 +2,7 @@ LIBS_DIR=libs
 EXE_DIR=exe
 OBJECT_DIR=obj
 
-all: clean dirs eff_serial ineff_serial parallel
+all: clean dirs eff_serial ineff_serial parallel clone
 
 eff_serial:
 	@gcc -c Serial_Detector_Efficient_Cache.c
@@ -21,6 +21,12 @@ parallel:
 	@mv Parallel_Detector.o $(OBJECT_DIR)
 	@gcc -o $(EXE_DIR)/Parallel_Detector $(OBJECT_DIR)/Parallel_Detector.o -lpthread
 	./$(EXE_DIR)/Parallel_Detector
+
+clone:
+	@gcc -c Parallel_Detector_Clone.c
+	@mv Parallel_Detector_Clone.o $(OBJECT_DIR)
+	@gcc -o $(EXE_DIR)/Parallel_Detector_Clone $(OBJECT_DIR)/Parallel_Detector_Clone.o -lpthread
+	./$(EXE_DIR)/Parallel_Detector_Clone
 
 clean:
 	@rm -f obj/*.o

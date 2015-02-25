@@ -1,10 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/time.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include <pthread.h>
+#include <linux/sched.h>
 
 #define DIF 16
+#define NUMTHREADS 4
+#define STACK_SIZE (1024 * 64)    /* Stack size for cloned child */
+
 // NOMBRE DEL ARCHIVO A PROCESAR
 char filename[]="ferrari.bmp";
 char namedest[]="ferrari_P.bmp";
@@ -128,24 +134,30 @@ unsigned char blackandwhite(PIXEL p)
 }
 
 // Find borders using neighborhood contrast algorithm
-void processBMP(IMAGE *src_image, IMAGE *dst_image)
+int *processBMP(void *arg)
 {
-	int i, j;					// Used in "for" loops
+	int i, j;
+	int tid = *((int *)arg);	// Thread id
 	PIXEL *psrc, *pdst;			// Pixel pointers
 	PIXEL *v0, *v1, *v2, *v3, *v4, *v5, *v6, *v7;	// Neighbors
-	int imageRows, imageCols;
+	
 	unsigned char gray_psrc;	// Source pixel changed to gray scale
+	int slice;					// Slice for each thread to perform
 
-	memcpy(dst_image, src_image, sizeof(IMAGE) - sizeof(PIXEL *));
+	// Image size
+	int imageRows = src_image.infoheader.rows;
+	int imageCols = src_image.infoheader.cols;	
 
-	imageRows = src_image->infoheader.rows;
-	imageCols = src_image->infoheader.cols;
-	dst_image->pixel = (PIXEL *)malloc(sizeof(PIXEL) * imageRows * imageCols);
+	// Slice should be "equally" divided in threads, ceil function is used
+	slice = (imageRows - 1) / NUMTHREADS + 1;
 
-	for (i = 1; i < imageRows - 1; i++)
+	int start = (slice * tid) + 1;	// Initial position for thread
+	int end = (slice * (tid + 1));	// Final position for thread
+
+	for (i = start; i <= end && i < imageRows - 1; i++)
 	{	
 		// Load initial values
-		psrc = src_image->pixel + imageCols * i + 1;
+		psrc = src_image.pixel + imageCols * i + 1;
 		v0 = psrc - imageCols - 1;
 		v1 = psrc - imageCols;
 		v5 = psrc + imageCols - 1;
@@ -153,7 +165,7 @@ void processBMP(IMAGE *src_image, IMAGE *dst_image)
 
 		for (j = 1; j < imageCols - 1; j++)
 		{			
-			psrc = src_image->pixel + imageCols * i + j;
+			psrc = src_image.pixel + imageCols * i + j;
 			v3 = psrc - 1;
 			v4 = psrc + 1;
 
@@ -174,9 +186,9 @@ void processBMP(IMAGE *src_image, IMAGE *dst_image)
 				v6 = psrc + imageCols + 1;
 			}
 
-			pdst = dst_image->pixel + imageCols * i + j;
+			pdst = dst_image.pixel + imageCols * i + j;
 			gray_psrc = blackandwhite(*psrc);
-
+			
 			// Detect contrast against neighbors
 			if (abs(gray_psrc - blackandwhite(*v0)) > DIF ||
 				abs(gray_psrc - blackandwhite(*v1)) > DIF ||
@@ -206,7 +218,13 @@ void processBMP(IMAGE *src_image, IMAGE *dst_image)
 int main()
 {
 	clock_t initial_t, final_t;		// Variable to count running time
-	
+	int i;							// Used in "for" loops
+	int tids[NUMTHREADS];			// Sequence ID for all threads
+	pid_t pids[NUMTHREADS];			// PIDs for all threads
+	pthread_t threads[NUMTHREADS];	// Array of threads
+	char *stack;                    /* Start of stack buffer */
+   	char *stackTop;                 /* End of stack buffer */
+
 	// Start clock
 	initial_t = clock();			
 
@@ -224,8 +242,23 @@ int main()
 	int imageRows = src_image.infoheader.rows;
 	int imageCols = src_image.infoheader.cols;
 
-	printf("Procesando imagen de: Renglones = %d, Columnas = %d\n", src_image.infoheader.rows, src_image.infoheader.cols);
-	processBMP(&src_image, &dst_image);
+	printf("Procesando imagen de: Renglones = %d, Columnas = %d\n", imageRows, imageCols);	
+	
+	// Initiliaze destination image
+	memcpy(&dst_image, &src_image, sizeof(IMAGE) - sizeof(PIXEL *));
+	dst_image.pixel = (PIXEL *)malloc(sizeof(PIXEL) * imageRows * imageCols);
+
+	// Create threads for border detection processing
+	for (i = 0; i < NUMTHREADS; i++) 
+	{
+		stack = malloc(STACK_SIZE);
+		tids[i] = i;
+		pids[i] = clone(processBMP, stack + STACK_SIZE, SIGCHLD | CLONE_FS | CLONE_FILES | CLONE_IO | CLONE_VM, (void *) &tids[i]);
+	}
+
+	// Wait for all threads to finish
+	for (i = 0; i < NUMTHREADS; i++)
+		waitpid(pids[i], NULL, 0);
 
 	// Save the image in bmp format	
 	if (saveBMP(namedest, &dst_image) == -1)
