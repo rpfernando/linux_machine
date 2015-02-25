@@ -5,19 +5,22 @@ OBJECT_DIR=obj
 all: clean dirs eff_serial ineff_serial parallel
 
 eff_serial:
-	@gcc -iquote $(LIBS_DIR) -c Serial_Detector_Efficient_Cache.c
+	@gcc -c Serial_Detector_Efficient_Cache.c
 	@mv Serial_Detector_Efficient_Cache.o $(OBJECT_DIR)
-	@gcc -o $(EXE_DIR)/Serial_Detector_Efficient_Cache $(OBJECT_DIR)/Serial_Detector_Efficient_Cache.o
+	@gcc -o $(EXE_DIR)/Serial_Detector_Efficient_Cache $(OBJECT_DIR)/Serial_Detector_Efficient_Cache.o -lpthread
+	./$(EXE_DIR)/Serial_Detector_Efficient_Cache
 
 ineff_serial:
-	@gcc -iquote $(LIBS_DIR) -c Serial_Detector_Inefficient_Cache.c
+	@gcc -c Serial_Detector_Inefficient_Cache.c
 	@mv Serial_Detector_Inefficient_Cache.o $(OBJECT_DIR)
-	@gcc -o $(EXE_DIR)/Serial_Detector_Inefficient_Cache $(OBJECT_DIR)/Serial_Detector_Inefficient_Cache.o
+	@gcc -o $(EXE_DIR)/Serial_Detector_Inefficient_Cache $(OBJECT_DIR)/Serial_Detector_Inefficient_Cache.o -lpthread
+	./$(EXE_DIR)/Serial_Detector_Inefficient_Cache
 
 parallel:
-	@gcc -iquote $(LIBS_DIR) -c Parallel_Detector.c -lpthread
+	@gcc -c Parallel_Detector.c
 	@mv Parallel_Detector.o $(OBJECT_DIR)
-	@gcc -o $(EXE_DIR)/Parallel_Detector $(OBJECT_DIR)/Parallel_Detector.o
+	@gcc -o $(EXE_DIR)/Parallel_Detector $(OBJECT_DIR)/Parallel_Detector.o -lpthread
+	./$(EXE_DIR)/Parallel_Detector
 
 clean:
 	@rm -f obj/*.o
