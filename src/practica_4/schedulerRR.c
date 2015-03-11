@@ -7,6 +7,8 @@ extern struct COLAPROC listos, bloqueados;
 extern int tiempo;
 extern int pars[];
 
+#define QUANTUM 1
+
 // =============================================================================
 // ESTE ES EL SCHEDULER
 // ============================================================================
@@ -48,7 +50,7 @@ int scheduler(int evento)
         prox_proceso_a_ejecutar = pars[0];
         printf("Termina E/S Proceso desbloqueado %d\n", pars[0]);
     }
-    
+
     if (evento == PROCESO_TERMINADO)
     {
         // pars0 = proceso terminado
