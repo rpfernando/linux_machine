@@ -13,7 +13,7 @@
 
 // NOMBRE DEL ARCHIVO A PROCESAR
 char filename[]="ferrari.bmp";
-char namedest[]="ferrari_P.bmp";
+char namedest[]="ferrari_P_Clone.bmp";
 
 #pragma pack(2) // Empaquetado de 2 bytes
 typedef struct {
