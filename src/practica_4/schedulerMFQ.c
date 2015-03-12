@@ -1,15 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "virtual_processor.h"
- 
+
 extern struct PROCESO proceso[];
 extern struct COLAPROC listos, bloqueados;
 extern int tiempo;
 extern int pars[];
 
+#define COLAS_RETROALIMENTACION 5
+#define QUANTUM 1
+
+struct COLAPROC retroalimentacion[5];
+int InicializaColasRetroalimentacion = 0;
+int min_priority = 0;
+
 // =============================================================================
 // ESTE ES EL SCHEDULER
 // ============================================================================
+
+void mete_a_cola_prioridad(int proceso_n) {
+    printf("Metiendo proceso %d a cola %d\n", proceso_n, proceso[proceso_n].prioridad);
+    if( proceso[proceso_n].prioridad >= COLAS_RETROALIMENTACION) {
+        proceso[proceso_n].prioridad = COLAS_RETROALIMENTACION-1 ;
+    }
+    mete_a_cola(&retroalimentacion[proceso[proceso_n].prioridad], proceso_n);
+}
 
 int scheduler(int evento)
 {
