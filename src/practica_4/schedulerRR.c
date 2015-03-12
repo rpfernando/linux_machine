@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "virtual_processor.h"
- 
+
 extern struct PROCESO proceso[];
 extern struct COLAPROC listos, bloqueados;
 extern int tiempo;
@@ -30,12 +30,19 @@ int scheduler(int evento)
         // pars[1] es el proceso en ejecución
         if (tiempo == 0) //if (pars[1] == NINGUNO)
             cambia_proceso = 1;
-    }      
+    }
 
     if (evento == TIMER)
+    {
         printf("Llega interrupcion del Timer\n");
+        if(tiempo % QUANTUM == 0)
+        {
+            mete_a_cola(&listos, pars[1]);
+            proceso[pars[1]].estado = LISTO;
+            cambia_proceso = 1;
+        }
+    }
 
-                                 
     if (evento == SOLICITA_E_S)
     {
         proceso[pars[1]].estado = BLOQUEADO;
@@ -47,7 +54,7 @@ int scheduler(int evento)
         // Saber cual proceso terminó E/S
         // pars0 es el proceso desbloqueado
         proceso[pars[0]].estado = LISTO;
-        prox_proceso_a_ejecutar = pars[0];
+        mete_a_cola(&listos, pars[0]);
         printf("Termina E/S Proceso desbloqueado %d\n", pars[0]);
     }
 
@@ -57,7 +64,7 @@ int scheduler(int evento)
         proceso[pars[0]].estado = TERMINADO;
         cambia_proceso = 1; // Indíca que puede poner un proceso nuevo en ejecucion
     }
-                                        
+
     if (cambia_proceso)
     {
         // Si la cola no esta vacia obtener de la cola el siguiente proceso listo
