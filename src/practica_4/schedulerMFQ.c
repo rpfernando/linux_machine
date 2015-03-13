@@ -61,19 +61,20 @@ int scheduler(int evento)
     if (evento == TIMER)
     {
         printf("Llega interrupcion del Timer\n");
-        if(tiempo % QUANTUM == 0)
+        if((tiempo + 1) % QUANTUM == 0 && pars[1] != NINGUNO)
         {
             proceso[pars[1]].prioridad++;
             mete_a_cola_prioridad(pars[1]);
             proceso[pars[1]].estado = LISTO;
-            cambia_proceso = 1;
         }
+        cambia_proceso = 1;
     }
 
     if (evento == SOLICITA_E_S)
     {
         proceso[pars[1]].estado = BLOQUEADO;
         printf("Solicita E/S Proceso %d\n", pars[1]);
+        cambia_proceso = 1;
     }
 
     if (evento == TERMINA_E_S)
