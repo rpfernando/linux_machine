@@ -9,6 +9,8 @@ extern int pars[];
 
 #define QUANTUM 1
 
+int currQ = 0;
+
 // =============================================================================
 // ESTE ES EL SCHEDULER
 // ============================================================================
@@ -35,11 +37,23 @@ int scheduler(int evento)
     if (evento == TIMER)
     {
         printf("Llega interrupcion del Timer\n");
-        if(tiempo % QUANTUM == 0)
+        if (pars[0] != NINGUNO)
+        {   
+            if (currQ >= QUANTUM)
+            {
+                cambia_proceso = 1; // Indíca que puede poner un proceso nuevo en ejecucion        
+                proceso[pars[0]].estado = LISTO;
+                mete_a_cola(&listos, pars[0]);
+                currQ = 1;
+            }
+            else 
+            {
+                currQ++;
+            }
+        }
+        else 
         {
-            mete_a_cola(&listos, pars[1]);
-            proceso[pars[1]].estado = LISTO;
-            cambia_proceso = 1;
+            cambia_proceso = 1; // Indíca que puede poner un proceso nuevo en ejecucion        
         }
     }
 
@@ -47,6 +61,7 @@ int scheduler(int evento)
     {
         proceso[pars[1]].estado = BLOQUEADO;
         printf("Solicita E/S Proceso %d\n", pars[1]);
+        cambia_proceso = 1; // Indíca que puede poner un proceso nuevo en ejecucion
     }
 
     if (evento == TERMINA_E_S)
@@ -62,6 +77,7 @@ int scheduler(int evento)
     {
         // pars0 = proceso terminado
         proceso[pars[0]].estado = TERMINADO;
+        currQ = 0;
         cambia_proceso = 1; // Indíca que puede poner un proceso nuevo en ejecucion
     }
 
