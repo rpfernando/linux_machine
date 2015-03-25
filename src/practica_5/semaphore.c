@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 
 void enqueue(struct QUEUE *q, int process)
 {
@@ -31,17 +29,58 @@ int dequeue(struct QUEUE *q)
     return(process);
 }
 
-void waitsem(struct SEMAPHORE *sem, int pid)
-{
-    //TODO
+void waitsem(struct SEMAPHORE *sem)
+{    
+    int process; = getpid();
+    int l = 1;
+    do { atomic_xchg(l, *g); } while(l != 0);
+   
+    // Critical section
+    sem -> counter--;
+    if (sem -> counter < 0)
+    {
+        // Enqueue in blocked queue
+        enqueue(sem -> blocked_queue, process);
+
+        // Lock process
+        kill(process, SIGSTOP);
+    }
+
+    // End of critical section
+    g = 0;
+
 }
 
-void signalsem(struct SEMAPHORE *sem, int pid)
-{
-    //TODO
+void signalsem(struct SEMAPHORE *sem)
+{  
+    int process;
+    int l = 1;
+
+    do { atomic_xchg(l, *g); } while(l != 0);
+   
+    // Critical section
+    sem -> counter++;
+    if (sem -> counter <= 0)
+    {
+        // Get pid from blocked queue
+        process = dequeue(sem -> blocked_queue);
+
+        // Unlock process
+        kill(proccess, SIGCONT);
+    }
+
+    // End of critical section
+    g = 0;
 }
 
 void initsem(struct SEMAPHORE *sem, int counter)
 {
+    int l = 1;
+    do { atomic_xchg(l, *g); } while(l != 0);
+   
+    // Critical section
     sem -> counter = counter;
+
+    // End of critical section
+    g = 0;
 }

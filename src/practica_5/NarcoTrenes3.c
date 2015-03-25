@@ -8,7 +8,7 @@
 #define CICLOS 10
 
 char *pais[3] = { "Peru", "Bolvia", "Colombia" };
-int *g;
+SEMAPHORE *sem;
 
 void proceso(int i)
 {
@@ -36,10 +36,45 @@ void proceso(int i)
 
 int main()
 {
+    int pid;
+    int status;
+    int shmid;
+    int i;
+
+    // Declarar memoria compartida
+    shmid = shmget(0x1234, sizeof(sem), 0666 | IPC_CREAT);
+    if (shmid == -1)
+    {
+        perror("Error en la memoria compartida\n");
+        exit(1);
+    }
+
+    sem = shmat(shmid, NULL, 0);
+
+    if (sem == NULL)
+    {
+        perror("Error en el shmat\n");
+        exit(2);
+    }
+
     // Incializar el contador del semáforo en 1 una vez que esté
     // en memoria compartida, de manera que solo a un proceso se le
     // permitirá entrar a la sección crítica
-    initsem(sem,1);
-    
-    //TODO
+    initsem(sem, 1);
+
+    srand(getpid());
+
+    for (i = 0; i < 3; i++)
+    {
+        // Crea un nuevo proceso hijo que ejecuta la función proceso()
+        pid = fork();
+        if (pid == 0)
+            proceso(i);
+    }
+
+    for (i = 0; i < 3; i++)
+        pid = wait(&status);
+
+    // Eliminar la memoria compartida
+    shmdt(sem);
 }

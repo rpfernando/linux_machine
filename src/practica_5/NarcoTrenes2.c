@@ -43,9 +43,7 @@ int main()
     int pid;
     int status;
     int shmid;
-    int args[3];
     int i;
-    void *thread_result;
 
     // Declarar memoria compartida
     shmid = shmget(0x1234, sizeof(g), 0666 | IPC_CREAT);
@@ -72,7 +70,7 @@ int main()
         // Crea un nuevo proceso hijo que ejecuta la función proceso()
         pid = fork();
         if (pid == 0)
-        proceso(i);
+            proceso(i);
     }
 
     for (i = 0; i < 3; i++)
