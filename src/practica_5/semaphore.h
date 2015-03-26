@@ -4,11 +4,9 @@
     : "m" (B), "ir" (A) \
 );
 
-int g = 0;
-
 struct SEMAPHORE {
     int counter;
-    struct QUEUE blocked_queue;
+    struct QUEUE *blocked_queue;
 };
 
 struct QUEUE {
@@ -18,9 +16,9 @@ struct QUEUE {
 };
 
 void enqueue(struct QUEUE *q, int process);
-int isEmpty(struct QUEUE q);
+int isEmpty(struct QUEUE *q);
 int dequeue(struct QUEUE *q);
 
-void waitsem(struct SEMAPHORE *sem, int pid);
+void waitsem(struct SEMAPHORE *sem);
 void signalsem(struct SEMAPHORE *sem);
 void initsem(struct SEMAPHORE *sem, int counter);

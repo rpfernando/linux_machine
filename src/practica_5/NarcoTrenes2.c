@@ -12,7 +12,7 @@
 
 #define CICLOS 10
 
-char *pais[3] = { "Peru", "Bolvia", "Colombia" };
+char *pais[3] = { "Peru", "Bolivia", "Colombia" };
 int *g;
 
 void proceso(int i)

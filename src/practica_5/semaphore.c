@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
+#include "semaphore.h"
+
+int g = 0;
 
 void enqueue(struct QUEUE *q, int process)
 {
@@ -11,9 +15,9 @@ void enqueue(struct QUEUE *q, int process)
         q -> start = 0;
 }
 
-int isEmpty(struct QUEUE q)
+int isEmpty(struct QUEUE *q)
 {
-    return((q.in == q.out)? 1 : 0);
+    return((q -> start == q -> end)? 1 : 0);
 }
 
 int dequeue(struct QUEUE *q)
@@ -31,16 +35,16 @@ int dequeue(struct QUEUE *q)
 
 void waitsem(struct SEMAPHORE *sem)
 {    
-    int process; = getpid();
+    int process = getpid();
     int l = 1;
-    do { atomic_xchg(l, *g); } while(l != 0);
+    do { atomic_xchg(l, g); } while(l != 0);
    
     // Critical section
     sem -> counter--;
     if (sem -> counter < 0)
     {
         // Enqueue in blocked queue
-        enqueue(sem -> blocked_queue, process);
+        enqueue(&(sem -> blocked_queue), process);
 
         // Lock process
         kill(process, SIGSTOP);
@@ -56,17 +60,17 @@ void signalsem(struct SEMAPHORE *sem)
     int process;
     int l = 1;
 
-    do { atomic_xchg(l, *g); } while(l != 0);
+    do { atomic_xchg(l, g); } while(l != 0);
    
     // Critical section
     sem -> counter++;
     if (sem -> counter <= 0)
     {
         // Get pid from blocked queue
-        process = dequeue(sem -> blocked_queue);
+        process = dequeue(&(sem -> blocked_queue));
 
         // Unlock process
-        kill(proccess, SIGCONT);
+        kill(process, SIGCONT);
     }
 
     // End of critical section
@@ -76,7 +80,7 @@ void signalsem(struct SEMAPHORE *sem)
 void initsem(struct SEMAPHORE *sem, int counter)
 {
     int l = 1;
-    do { atomic_xchg(l, *g); } while(l != 0);
+    do { atomic_xchg(l, g); } while(l != 0);
    
     // Critical section
     sem -> counter = counter;

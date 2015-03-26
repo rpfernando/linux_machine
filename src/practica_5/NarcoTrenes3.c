@@ -7,8 +7,8 @@
 
 #define CICLOS 10
 
-char *pais[3] = { "Peru", "Bolvia", "Colombia" };
-SEMAPHORE *sem;
+char *pais[3] = { "Peru", "Bolivia", "Colombia" };
+struct SEMAPHORE *sem;
 
 void proceso(int i)
 {
