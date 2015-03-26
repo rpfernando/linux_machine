@@ -4,15 +4,15 @@
     : "m" (B), "ir" (A) \
 );
 
-struct SEMAPHORE {
-    int counter;
-    struct QUEUE *blocked_queue;
-};
-
 struct QUEUE {
-    int queue[20];
+    int items[20];
     int start;
     int end;
+};
+
+struct SEMAPHORE {
+    int counter;
+    struct QUEUE blocked_queue;
 };
 
 void enqueue(struct QUEUE *q, int process);

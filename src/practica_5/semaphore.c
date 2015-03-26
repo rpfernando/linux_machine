@@ -8,7 +8,7 @@ int g = 0;
 
 void enqueue(struct QUEUE *q, int process)
 {
-    q -> queue[q -> start] = process;
+    q -> items[q -> start] = process;
     q -> start++;
 
     if (q -> start > 19)
@@ -24,7 +24,7 @@ int dequeue(struct QUEUE *q)
 {
     int process;
     
-    process = q -> queue[q -> end];
+    process = q -> items[q -> end];
     q -> end++;
 
     if (q -> end > 19)
@@ -84,7 +84,8 @@ void initsem(struct SEMAPHORE *sem, int counter)
    
     // Critical section
     sem -> counter = counter;
-
+    sem -> blocked_queue.start = 0;
+    sem -> blocked_queue.end = 0;
     // End of critical section
     g = 0;
 }
