@@ -5,16 +5,14 @@
 #define CICLOS 10
 
 char *pais[3] = {"Peru", "Bolivia", "Colombia"};
-int *g;
 
 void proceso(int i)
 {
     int k;
-    int l;
-    for(k=0;k<CICLOS;k++)
+    for (k = 0; k < CICLOS; k++)
     {    
         // Entrada a la sección crítica
-        printf("Entra %s", pais[i]);
+        printf("Entra %s ", pais[i]);
         fflush(stdout);
         sleep(rand() % 3);
         printf("- %s Sale\n", pais[i]);
@@ -29,9 +27,10 @@ int main()
 {
     int pid;
     int status;
-    int args[3];
     int i;
+
     srand(getpid());
+
     for (i = 0; i < 3; i++)
     {
         // Crea un nuevo proceso hijo que ejecuta la función proceso()

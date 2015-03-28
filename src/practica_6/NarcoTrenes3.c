@@ -52,7 +52,8 @@ int main()
 
     // Declarar el buzón
     msqid = msgget(0x1234, 0666 | IPC_CREAT);
-    if (msqid == -1) {
+    if (msqid == -1) 
+    {
         perror("Error en la creacion del buzon\n");
         exit(1);
     }
@@ -62,7 +63,8 @@ int main()
     msgp.mtext[0] = 0;
 
     // Enviar un mensaje inicial
-    if (msgsnd(msqid, &msgp, 1, 0) == -1) {
+    if (msgsnd(msqid, &msgp, 1, 0) == -1) 
+    {
         perror("Error en el envio inicial");
         exit(2);
     }
@@ -79,7 +81,8 @@ int main()
         pid = wait(&status);
 
     // Cerrar el buzón
-    if (msgctl(msqid, IPC_RMID, NULL) == -1) {
+    if (msgctl(msqid, IPC_RMID, NULL) == -1) 
+    {
         printf("Error en el cierre del buzon");
         exit(4);
     }
