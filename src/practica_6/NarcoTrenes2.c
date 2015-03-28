@@ -18,9 +18,8 @@ void proceso(int i)
     {
         // Llamada waitsem implementada en la parte 3
         semop(sem);
-        printf("Entra %s ", pais[i]);
+        printf("Entra %s", pais[i]);
         fflush(stdout);
-        sleep(rand() % 3);
         printf("- %s Sale\n", pais[i]);
 
         // Llamada waitsignal implementada en la parte 3
@@ -60,7 +59,7 @@ int main()
     // Incializar el contador del semáforo en 1 una vez que esté
     // en memoria compartida, de manera que solo a un proceso se le
     // permitirá entrar a la sección crítica
-    semget(sem, 1, 1);
+    semget(sem, 1, 0);
 
     srand(getpid());
 
