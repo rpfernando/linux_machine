@@ -22,13 +22,14 @@ void proceso(int i)
     for (k = 0; k < CICLOS; k++)
     {
         // Recibir mensaje
+        printf("Espera %s\n", pais[i]);
         msgrcv(msqid, &msgp, 1, 1, 0);
 
         // Sección crítica
-        printf("Entra %s ", pais[i]);
+        printf("\tEntra %s\n", pais[i]);
         fflush(stdout);
         sleep(rand() % 3);
-        printf("- %s Sale\n", pais[i]);
+        printf("\t\tSale %s\n", pais[i]);
         // Sección crítica
 
         // Envia mensaje
