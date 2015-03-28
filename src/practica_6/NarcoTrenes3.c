@@ -62,7 +62,7 @@ int main()
     msgp.mtext[0] = 0;
 
     // Enviar un mensaje inicial
-    if (msgsnd(msqid, &msgp, sizeof(int), 0) == -1) {
+    if (msgsnd(msqid, &msgp, 1, 0) == -1) {
         perror("Error en el envio inicial");
         exit(2);
     }
