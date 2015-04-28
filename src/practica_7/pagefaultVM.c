@@ -12,8 +12,27 @@ extern int processpagetablesize;
 extern struct SYSTEMFRAMETABLE *systemframetable;
 extern struct PROCESSPAGETABLE processpagetable[];
 
+int pagefault(char *vaddress);
 
-// Rutina de fallos de página
+// FRAME SEARCH METHODS
+int getPhysicalFrame();
+int getVirtualFrame();
+
+// SWAPPING METHODS
+void swap(int pageIn);
+int calcLRU();
+
+// HELPER METHODS
+int inVirtualMemory(int page);
+int dirty(int page);
+int emptyFrame(struct SYSTEMFRAMETABLE frame);
+
+// FILE HANDLING METHODS
+void readSwapFile(struct SYSTEMFRAMETABLE *frame, int framenumber);
+void writeSwapFile(struct SYSTEMFRAMETABLE *frame, int framenumber);
+
+
+// --------------- PAGE FAULT ROUTINE ---------------
 int pagefault(char *vaddress)
 {
     int frame;
@@ -69,9 +88,9 @@ int getPhysicalFrame()
 int getVirtualFrame() 
 {
     struct SYSTEMFRAMETABLE frame;
-    int framenumber = TOTFRAMES;
+    int framenumber;
 
-    for (framenumber = PHYSICALMEMORYSIZE; framenumber < TOTFRAMES * 2; framenumber++)
+    for (framenumber = systemframetablesize; framenumber < systemframetablesize * 2; framenumber++)
     {
         readSwapFile(&frame, framenumber);
         if (emptyFrame(frame))
@@ -88,9 +107,9 @@ int getVirtualFrame()
 
 // --------------- SWAPPING METHODS ---------------
 
-void swap(int pageIn) 
+void swap(int pageIn)
 {
-    pageOut = calcLRU(); // Use Least Recent Access to find page to swap out
+    int pageOut = calcLRU(); // Use Least Recent Access to find page to swap out
 
     // Get the frame number of each page
     int frameIn = processpagetable[pageIn].framenumber;
