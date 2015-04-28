@@ -12,8 +12,8 @@
 #define VERSION "mmu versión 10.0326.00\n"
 
 #define PAGESIZE 4096
-#define PHISICALMEMORYSIZE 32*1024
-#define SYSTEMFRAMETABLESIZE PHISICALMEMORYSIZE/PAGESIZE
+#define PHYSICALMEMORYSIZE 32*1024
+#define SYSTEMFRAMETABLESIZE PHYSICALMEMORYSIZE/PAGESIZE
 #define TOTFRAMES SYSTEMFRAMETABLESIZE
 #define MAXPROC 4
 #define PROCESSPAGETABLESIZE 2*SYSTEMFRAMETABLESIZE/MAXPROC 
@@ -254,7 +254,7 @@ main(int argc, char *argv[])
     framesptr=tablesarea+PAGESIZE;
     if(debugmode)
         printf("Frames area = %p\n",framesptr);
-    base=framesptr+PHISICALMEMORYSIZE;
+    base=framesptr+PHYSICALMEMORYSIZE;
     if(debugmode)
         printf("Base = %p\n",base);
 
