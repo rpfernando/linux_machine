@@ -19,13 +19,12 @@ int getPhysicalFrame();
 int getVirtualFrame();
 
 // SWAPPING METHODS
-void swap(int pageIn);
+void performSwap(int pageIn);
 int calcLRU();
 
 // HELPER METHODS
-int inVirtualMemory(int page);
+int inPhysicalMemory(int page);
 int dirty(int page);
-int emptyFrame(struct SYSTEMFRAMETABLE frame);
 
 // FILE HANDLING METHODS
 void readSwapFile(struct SYSTEMFRAMETABLE *frame, int framenumber);
@@ -40,28 +39,38 @@ int pagefault(char *vaddress)
 
     // Get process page
     pageIn = (int) vaddress >> 12;
-  
-    // Try to get physical frame first
-    frame = getPhysicalFrame();
 
-    // Physical space was not available try to get virtual space
-    if (frame == NINGUNO) {
-        frame = getVirtualFrame();
+    // Try to get physical frame first
+    if (countframesassigned() < FRAMESPROC)
+    {
+        frame = getPhysicalFrame();
 
         // Out of memory error
         if (frame == NINGUNO)
             return NINGUNO;
 
         processpagetable[pageIn].framenumber = frame;
-        swap(pageIn);
+    }
+    // Physical space was not available try to get virtual space
+    else
+    {
+        // Has no virtual frame assigned, get a free one
+        if (!hasVirtualFrame(pageIn))
+        {
+            frame = getVirtualFrame();
 
-        return 1; // Success
+            // Out of memory error
+            if (frame == NINGUNO)
+                return NINGUNO;
+
+            processpagetable[pageIn].framenumber = frame;
+        }
+
+        performSwap(pageIn);
     }
 
     // Update page values
     processpagetable[pageIn].presente = 1;
-    processpagetable[pageIn].modificado = 0;
-    processpagetable[pageIn].framenumber = frame;
 
     return 1; // Success
 }
@@ -71,9 +80,24 @@ int pagefault(char *vaddress)
 
 int getPhysicalFrame()
 {
+    int start = framesbegin;
+    int end = start + systemframetablesize;
+
+    return getFrame(start, end);
+}
+
+int getVirtualFrame() 
+{
+    int start = systemframetablesize + framesbegin + (idproc * FRAMESPROC);
+    int end = start + FRAMESPROC;
+
+    return getFrame(start, end);
+}
+
+int getFrame(int start, int end) {
     int i;
-    // Look for a free physical frame
-    for (i = framesbegin; i < systemframetablesize + framesbegin; i++)
+
+    for (i = start; i < end; i++)
     {
         if (!systemframetable[i].assigned)
         {
@@ -82,38 +106,23 @@ int getPhysicalFrame()
         }
     }
 
-    return NINGUNO;
-}
-
-int getVirtualFrame() 
-{
-    struct SYSTEMFRAMETABLE frame;
-    int framenumber;
-
-    for (framenumber = systemframetablesize; framenumber < systemframetablesize * 2; framenumber++)
-    {
-        readSwapFile(&frame, framenumber);
-        if (emptyFrame(frame))
-        {
-            frame.assigned = 1;
-            writeSwapFile(&frame, framenumber);
-            return framenumber;
-        }
-    }
-
    return NINGUNO;
 }
 
-
 // --------------- SWAPPING METHODS ---------------
 
-void swap(int pageIn)
+void performSwap(int pageIn)
 {
-    int pageOut = calcLRU(); // Use Least Recent Access to find page to swap out
+    // Use Least Recent Access to find page to swap out
+    int pageOut = calcLRU(); 
 
     // Get the frame number of each page
     int frameIn = processpagetable[pageIn].framenumber;
     int frameOut = processpagetable[pageOut].framenumber;
+
+    /*// Read frame content from swap virtual space
+    struct SYSTEMFRAMETABLE frameInContent;
+    readSwapFile(&frameInContent, frameIn);
 
     // Swap out the old frame
     if (dirty(pageOut))
@@ -130,10 +139,7 @@ void swap(int pageIn)
     }
 
     // Swap in the new frame
-    struct SYSTEMFRAMETABLE frameInContent;
-    readSwapFile(&frameInContent, frameIn);
-    write(&frameInContent, frameOut);
-
+    writeSwapFile(&frameInContent, frameOut);*/
 
     // Page were swapped, update respective values
     processpagetable[pageOut].presente = 0;
@@ -154,7 +160,7 @@ int calcLRU()
     // Find page with least recent access
     for (i = 0; i < processpagetablesize; i++)
         if (processpagetable[i].tlastaccess < processpagetable[minIdx].tlastaccess)
-            if (inVirtualMemory(i))
+            if (inPhysicalMemory(i))
                 minIdx = i;
 
     return minIdx;
@@ -163,9 +169,9 @@ int calcLRU()
 
 // --------------- HELPER METHODS ---------------
 
-int inVirtualMemory(int page) 
+int inPhysicalMemory(int page) 
 {
-    return !processpagetable[page].presente;
+    return processpagetable[page].presente;
 }
 
 int dirty(int page)
@@ -173,9 +179,13 @@ int dirty(int page)
     return processpagetable[page].modificado;
 }
 
-int emptyFrame(struct SYSTEMFRAMETABLE frame)
+int hasVirtualFrame(int page)
 {
-    return !frame.assigned;
+    int min = framesbegin + systemframetablesize;
+    int max = min + systemframetablesize;
+    int framenumber = processpagetable[page].framenumber;
+
+    return framenumber >= min && framenumber < max;
 }
 
 
@@ -184,29 +194,35 @@ int emptyFrame(struct SYSTEMFRAMETABLE frame)
 void readSwapFile(struct SYSTEMFRAMETABLE *frame, int framenumber) 
 {
     // Open the swap file
-    FILE *file = fopen("swapfile","rb");
-    
-    // Change position to according page
-    fseek(file, framenumber - framesbegin, SEEK_SET);
+    FILE *file = fopen("swap","rb");
 
-    // Write page in current position
-    fread(frame, sizeof(struct SYSTEMFRAMETABLE), 1, file);
+    // Calculate initial position
+    int position = (framenumber - framesbegin) * FRAMESIZE;
 
-    // Close the swapfile
+    // Change position to according frame
+    fseek(file, position, SEEK_SET);
+
+    // Read frame in current position
+    fread(frame, FRAMESIZE, 1, file);
+
+    // Close the swap file
     fclose(file);
 }
 
 void writeSwapFile(struct SYSTEMFRAMETABLE *frame, int framenumber) 
 {
     // Open the swap file
-    FILE *file = fopen("swapfile","wb");
+    FILE *file = fopen("swap","wb");
 
-    // Change position to according page
-    fseek(file, framenumber - framesbegin, SEEK_SET);
+    // Calculate initial position
+    int position = (framenumber - framesbegin) * FRAMESIZE;
 
-    // Write page in current position
-    fwrite(frame, sizeof(struct SYSTEMFRAMETABLE), 1, file);
+    // Change position to according fram
+    fseek(file, position, SEEK_SET);
 
-    // Close the swapfile
+    // Write frame in current position
+    fwrite(frame, FRAMESIZE, 1, file);
+
+    // Close the swap file
     fclose(file);
 }

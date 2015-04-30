@@ -11,16 +11,6 @@
 
 #define VERSION "mmu versión 10.0326.00\n"
 
-#define PAGESIZE 4096
-#define PHYSICALMEMORYSIZE 32*1024
-#define SYSTEMFRAMETABLESIZE PHYSICALMEMORYSIZE/PAGESIZE
-#define TOTFRAMES SYSTEMFRAMETABLESIZE
-#define MAXPROC 4
-#define PROCESSPAGETABLESIZE 2*SYSTEMFRAMETABLESIZE/MAXPROC 
-#define TABLESSIZE 2*SYSTEMFRAMETABLESIZE*sizeof(struct SYSTEMFRAMETABLE) 
-
-
-
 struct SYSTEMFRAMETABLE *systemframetable;
 struct PROCESSPAGETABLE processpagetable[PROCESSPAGETABLESIZE]; 
 
@@ -142,7 +132,7 @@ void seg_handler(int sig,siginfo_t *sip,void *notused)
 
         if(debugmode)
         {
-            printf("Proceso=%d, Página %d cargada en el marco %d\n",idproc,pag_del_proceso,processpagetable[pag_del_proceso].framenumber);
+            printf("Proceso=%d, Página %d cargada en el marco %X\n",idproc,pag_del_proceso,processpagetable[pag_del_proceso].framenumber);
             printf("Tabla de páginas Proc -> Pag Pr Mo Fr\n");
             for(i=0;i<PROCESSPAGETABLESIZE;i++)
                 printf("                    %d ->   %d  %d  %d %2X\n",idproc,
