@@ -84,7 +84,7 @@ void seg_handler(int sig,siginfo_t *sip,void *notused)
     else  
         flags=SHM_RND | SHM_RDONLY;
 
-    // Si la página está presente y conetcada, trataron de modificarla
+    // Si la página está presente y conectada, trataron de modificarla
     // Poner el bit de modificado en 1
     if(processpagetable[pag_del_proceso].presente && 
        processpagetable[pag_del_proceso].attached)

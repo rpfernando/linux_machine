@@ -27,8 +27,8 @@ int inPhysicalMemory(int page);
 int dirty(int page);
 
 // FILE HANDLING METHODS
-void readSwapFile(struct SYSTEMFRAMETABLE *frame, int framenumber);
-void writeSwapFile(struct SYSTEMFRAMETABLE *frame, int framenumber);
+void readSwapFile(char *address, int framenumber);
+void writeSwapFile(char *address, int framenumber);
 
 
 // --------------- PAGE FAULT ROUTINE ---------------
@@ -120,26 +120,26 @@ void performSwap(int pageIn)
     int frameIn = processpagetable[pageIn].framenumber;
     int frameOut = processpagetable[pageOut].framenumber;
 
-    /*// Read frame content from swap virtual space
-    struct SYSTEMFRAMETABLE frameInContent;
-    readSwapFile(&frameInContent, frameIn);
+    // Read frame content from swap virtual space
+    char frameInContent[FRAMESIZE];
+    readSwapFile(frameInContent, frameIn);
 
     // Swap out the old frame
     if (dirty(pageOut))
     {
         // Page was modified perform swap directly from system frame table
-        writeSwapFile(&systemframetable[frameOut], frameIn);
+        writeSwapFile(systemframetable[frameOut].paddress, frameIn);
     }
     else
     {
         // Page was not modified perform swap directly from file
-        struct SYSTEMFRAMETABLE frameOutContent;
-        readSwapFile(&frameOutContent, frameOut);
-        writeSwapFile(&frameOutContent, frameIn);
+        char frameOutContent[FRAMESIZE];
+        readSwapFile(frameOutContent, frameOut);
+        writeSwapFile(frameOutContent, frameIn);
     }
 
     // Swap in the new frame
-    writeSwapFile(&frameInContent, frameOut);*/
+    writeSwapFile(frameInContent, frameOut);
 
     // Page were swapped, update respective values
     processpagetable[pageOut].presente = 0;
@@ -191,7 +191,7 @@ int hasVirtualFrame(int page)
 
 // --------------- FILE HANDLING METHODS ---------------
 
-void readSwapFile(struct SYSTEMFRAMETABLE *frame, int framenumber) 
+void readSwapFile(char *address, int framenumber) 
 {
     // Open the swap file
     FILE *file = fopen("swap","rb");
@@ -203,13 +203,13 @@ void readSwapFile(struct SYSTEMFRAMETABLE *frame, int framenumber)
     fseek(file, position, SEEK_SET);
 
     // Read frame in current position
-    fread(frame, FRAMESIZE, 1, file);
+    fread(address, 1, FRAMESIZE, file);
 
     // Close the swap file
     fclose(file);
 }
 
-void writeSwapFile(struct SYSTEMFRAMETABLE *frame, int framenumber) 
+void writeSwapFile(char *address, int framenumber) 
 {
     // Open the swap file
     FILE *file = fopen("swap","wb");
@@ -221,7 +221,7 @@ void writeSwapFile(struct SYSTEMFRAMETABLE *frame, int framenumber)
     fseek(file, position, SEEK_SET);
 
     // Write frame in current position
-    fwrite(frame, FRAMESIZE, 1, file);
+    fwrite(address, 1, FRAMESIZE, file);
 
     // Close the swap file
     fclose(file);
