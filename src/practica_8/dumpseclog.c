@@ -8,34 +8,18 @@
 
 int main(int argc, char *argv[])
 {
-	int drive;
-	int ncyl, nhead, nsec;
+	int seclog = atoi(argv[1]);
 	unsigned char buffer[SECSIZE];
 	int i, j;
 	unsigned char c;
 
-	if (argc == 5)
-	{	
-		drive = atoi(argv[1]);
-		ncyl = atoi(argv[2]);
-		nhead = atoi(argv[3]);
-		nsec = atoi(argv[4]);
-		if (drive < 0 || drive > 3 || ncyl > CYLINDERS || nhead > HEADS || nsec > SECTORS || 
-			ncyl < 0 || nhead < 0 || nsec < 1)
-		{
-			fprintf(stderr, "Posición invalida\n");
-			exit(1);
-		}
-		printf("Desplegando de disco%d.vd Cil = %d, Sup = %d, Sec = %d\n", drive, ncyl, nhead, nsec);
-		
-	}
-	else	
+	if ( seclog > HEADS * SECTORS * CYLINDERS )
 	{
-		fprintf(stderr, "Error en los argumentos\n");
+		fprintf(stderr, "Posición invalida\n");
 		exit(1);
 	}
-
-	if (vdreadsector(drive, nhead, ncyl, nsec, 1, buffer) == -1)
+	
+	if (vdreadsl(seclog, buffer) == -1)
 	{
 		fprintf(stderr,"Error al abrir disco virtual\n");
 		exit(1);

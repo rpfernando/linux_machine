@@ -7,11 +7,30 @@
 int currentcyl[4] = {0, 0, 0, 0};
 int currentsec[4] = {0, 0, 0, 0};
 
+int vdwritesl(int seclog, char *buffer)
+{
+    int drive = 0;
+    int nsec = getsec(seclog);
+    int ncyl = getcyl(seclog);
+    int nhead = gethead(seclog);
+
+    vdwritesector(drive, nhead, ncyl, nsec, buffer);
+}
+
+int vdreadsl(int seclog, char *buffer)
+{
+    int drive = 0;
+    int nsec = getsec(seclog);
+    int ncyl = getcyl(seclog);
+    int nhead = gethead(seclog);
+    
+    vdreadsector(drive, nhead, ncyl, nsec, buffer);
+}
+
 int vdwritesector(int drive, int head, int cylinder, int sector, int nsecs, char *buffer)
 {
     char filename[20];
     int fp;
-    int timecyl, timesec;
     int sl, offset;
     sprintf(filename, "disco%c.vd", (char) drive + '0');
     fp = open(filename, O_WRONLY);
@@ -19,31 +38,11 @@ int vdwritesector(int drive, int head, int cylinder, int sector, int nsecs, char
         return(-1);
 
     // Valida parámetros
-    if (drive < 0 || drive > 3)
-        return(-1);
-
-    if (head < 0 || head >= HEADS)
-        return(-1);
-
-    if (cylinder < 0 || cylinder >= CYLINDERS)
-        return(-1);
-
-    if (sector < 1 || sector > SECTORS)
-        return(-1);
-
-    if (sector + nsecs - 1 > SECTORS)
-        return(-1);
+    if (validate(drive, head, cylinder, sector, nsecs) == 0)
+        return -1;
 
     // Hace el retardo
-    timesec = sector - currentsec[drive];
-    if (timesec < 0)
-        timesec += SECTORS;
-    usleep(timesec * 1000);
-    currentsec[drive] = sector;
-
-    timecyl = abs(currentcyl[drive] - cylinder);
-    usleep(timecyl * 1000);    
-    currentcyl[drive] = cylinder;
+    performDelay(drive, cylinder, sector);
 
     // Calcula la posición en el archivo
     sl = cylinder * SECTORS * HEADS + head * SECTORS + (sector - 1);
@@ -58,7 +57,6 @@ int vdreadsector(int drive, int head, int cylinder, int sector, int nsecs, char 
 {
     char filename[20];
     int fp;
-    int timecyl, timesec;
     int sl, offset;
     sprintf(filename, "disco%c.vd", (char) drive + '0');
     fp = open(filename, O_RDONLY);
@@ -66,21 +64,45 @@ int vdreadsector(int drive, int head, int cylinder, int sector, int nsecs, char 
         return(-1);
                                                                                 
     // Valida parámetros
+    if (validate(drive, head, cylinder, sector, nsecs) == 0)
+        return -1;
+                                                                                
+    // Hace el retardo
+    performDelay(drive, cylinder, sector);
+                                                                                
+    // Calcula la posición en el archivo
+    sl = cylinder * SECTORS * HEADS + head * SECTORS + (sector - 1);
+    offset = sl * 512;
+    lseek(fp, offset, SEEK_SET);
+    read(fp, buffer, 512 * nsecs);
+    close(fp);
+    return(nsecs);
+}
+
+// ====== HELPER METHODS ======
+int validate(int drive, int head, int cylinder, int sector, int nsecs) {
+    // Valida parámetros
     if (drive < 0 || drive > 3)
-        return(-1);
-                                                                                
+        return 0;
+
     if (head < 0 || head >= HEADS)
-        return(-1);
-                                                                                
+        return 0;
+
     if (cylinder < 0 || cylinder >= CYLINDERS)
-        return(-1);
-                                                                                
+        return 0;
+
     if (sector < 1 || sector > SECTORS)
-        return(-1);
-                                                                                
+        return 0;
+
     if (sector + nsecs - 1 > SECTORS)
-        return(-1);
-                                                                                
+        return 0;
+
+    return 1;
+}
+
+void performDelay(int drive, int cylinder, int sector) {
+    int timecyl, timesec;
+
     // Hace el retardo
     timesec = sector - currentsec[drive];
     if (timesec < 0)
@@ -91,12 +113,21 @@ int vdreadsector(int drive, int head, int cylinder, int sector, int nsecs, char 
     timecyl = abs(currentcyl[drive] - cylinder);
     usleep(timecyl * 1000);
     currentcyl[drive] = cylinder;
-                                                                                
-    // Calcula la posición en el archivo
-    sl = cylinder * SECTORS * HEADS + head * SECTORS + (sector - 1);
-    offset = sl * 512;
-    lseek(fp, offset, SEEK_SET);
-    read(fp, buffer, 512 * nsecs);
-    close(fp);
-    return(nsecs);
+}
+
+// ====== LOGICAL SECTOR TRANSLATION HELPER METHODS =======
+
+int getcyl(int seclog)
+{
+    return seclog / (SECTORS * HEADS);
+}
+
+int getsec(int seclog)
+{
+    return (seclog % SECTORS) + 1;
+}
+
+int gethead(int seclog)
+{
+    return (seclog / SECTORS) % HEADS;
 }
