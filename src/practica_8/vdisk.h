@@ -1,11 +1,20 @@
-#define HEADS 24
-#define SECTORS 17
-#define CYLINDERS 80 
+#include <sys/types.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include "global.h"
 
-int vdwritesl(int seclog, char *buffer);
-int vdreadsl(int seclog, char *buffer);
+// ======= FUNCTIONS ======
+
+// Logic sector read/write
+int vdwritesl(int drive, int seclog, int nsecs, char *buffer);
+int vdreadsl(int drive, int seclog, int nsecs, char *buffer);
+
+// Sector read/write
 int vdwritesector(int drive, int head, int cylinder, int sector, int nsecs, char *buffer);
 int vdreadsector(int drive, int head, int cylinder, int sector, int nsecs, char *buffer);
+
+// Helper methods
 int getcyl(int seclog);
 int getsec(int seclog);
 int gethead(int seclog);

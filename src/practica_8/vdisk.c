@@ -1,30 +1,25 @@
-#include <sys/types.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include "vdisk.h" 
 
 int currentcyl[4] = {0, 0, 0, 0};
 int currentsec[4] = {0, 0, 0, 0};
 
-int vdwritesl(int seclog, char *buffer)
+int vdwritesl(int drive, int seclog, int nsecs, char *buffer)
 {
-    int drive = 0;
     int nsec = getsec(seclog);
     int ncyl = getcyl(seclog);
     int nhead = gethead(seclog);
 
-    vdwritesector(drive, nhead, ncyl, nsec, buffer);
+    return vdwritesector(drive, nhead, ncyl, nsec, nsecs, buffer);
 }
 
-int vdreadsl(int seclog, char *buffer)
+int vdreadsl(int drive, int seclog, int nsecs, char *buffer)
 {
     int drive = 0;
     int nsec = getsec(seclog);
     int ncyl = getcyl(seclog);
     int nhead = gethead(seclog);
     
-    vdreadsector(drive, nhead, ncyl, nsec, buffer);
+    return vdreadsector(drive, nhead, ncyl, nsec, nsecs, buffer);
 }
 
 int vdwritesector(int drive, int head, int cylinder, int sector, int nsecs, char *buffer)
@@ -35,11 +30,11 @@ int vdwritesector(int drive, int head, int cylinder, int sector, int nsecs, char
     sprintf(filename, "disco%c.vd", (char) drive + '0');
     fp = open(filename, O_WRONLY);
     if (fp == -1)
-        return(-1);
+        return ERROR;
 
     // Valida parámetros
-    if (validate(drive, head, cylinder, sector, nsecs) == 0)
-        return -1;
+    if (isValid(drive, head, cylinder, sector, nsecs) == NO)
+        return ERROR;
 
     // Hace el retardo
     performDelay(drive, cylinder, sector);
@@ -50,7 +45,7 @@ int vdwritesector(int drive, int head, int cylinder, int sector, int nsecs, char
     lseek(fp, offset, SEEK_SET);
     write(fp, buffer, 512 * nsecs);
     close(fp);
-    return(nsecs);
+    return nsecs;
 }
 
 int vdreadsector(int drive, int head, int cylinder, int sector, int nsecs, char *buffer)
@@ -61,11 +56,11 @@ int vdreadsector(int drive, int head, int cylinder, int sector, int nsecs, char 
     sprintf(filename, "disco%c.vd", (char) drive + '0');
     fp = open(filename, O_RDONLY);
     if (fp == -1)
-        return(-1);
+        return ERROR;
                                                                                 
     // Valida parámetros
-    if (validate(drive, head, cylinder, sector, nsecs) == 0)
-        return -1;
+    if (isValid(drive, head, cylinder, sector, nsecs) == NO)
+        return ERROR;
                                                                                 
     // Hace el retardo
     performDelay(drive, cylinder, sector);
@@ -76,28 +71,29 @@ int vdreadsector(int drive, int head, int cylinder, int sector, int nsecs, char 
     lseek(fp, offset, SEEK_SET);
     read(fp, buffer, 512 * nsecs);
     close(fp);
-    return(nsecs);
+    return nsecs;
 }
 
 // ====== HELPER METHODS ======
-int validate(int drive, int head, int cylinder, int sector, int nsecs) {
+
+int isValid(int drive, int head, int cylinder, int sector, int nsecs) {
     // Valida parámetros
     if (drive < 0 || drive > 3)
-        return 0;
+        return NO;
 
     if (head < 0 || head >= HEADS)
-        return 0;
+        return NO;
 
     if (cylinder < 0 || cylinder >= CYLINDERS)
-        return 0;
+        return NO;
 
     if (sector < 1 || sector > SECTORS)
-        return 0;
+        return NO;
 
     if (sector + nsecs - 1 > SECTORS)
-        return 0;
+        return NO;
 
-    return 1;
+    return YES;
 }
 
 void performDelay(int drive, int cylinder, int sector) {
