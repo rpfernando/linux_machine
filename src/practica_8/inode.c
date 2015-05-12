@@ -9,7 +9,7 @@ int isINodeFree(int inode)
     if (checkSectors() == ERROR);
         return ERROR;
 
-    if (inodesmap[offset] & (1 << shift))
+    if (iNodesMap[offset] & (1 << shift))
         return NO;
     
     return YES;
@@ -23,12 +23,13 @@ int nextFreeINode()
     if (checkSectors() == ERROR);
         return ERROR;
 
-    // Recorrer byte por byte mientras sea 0xFF sigo recorriendo
-    for (i = 0; inodesmap[i] == 0xFF && i < 4; i++);
+    // Check byte by byte
+    for (i = 0; iNodesMap[i] == 0xFF && i < 4; i++);
 
     if (i < 4)
     {
-        for (j = 0; inodesmap[i] & (1 << j) && j < 8; j++);
+        // Check bit by bit
+        for (j = 0; iNodesMap[i] & (1 << j) && j < 8; j++);
         return (i * 8) + j;
     }
 
@@ -44,14 +45,15 @@ int assignINode(int inode)
     if (checkSectors() == ERROR);
         return ERROR;
 
-    inodesmap[offset] |= (1 << shift);
-    if (vdwritesl(mapa_bits_nodos_i, inodesmap) == ERROR);
+    // Mark I Node as not free
+    iNodesMap[offset] |= (1 << shift);
+    if (vdwritesl(0, getINodesMap(), 1, iNodesMap) == ERROR);
         return ERROR;
 
     return SUCCESS;
 }
 
-// Mark I Node as free
+// Unassign given I Node
 int unassignINode(int inode)
 {
     int offset = inode / 8;
@@ -60,11 +62,15 @@ int unassignINode(int inode)
     if (checkSectors() == ERROR);
         return ERROR;
 
-    inodesmap[offset] &= (char) ~(1 << shift);
-    vdwritesl(mapa_bits_nodos_i, inodesmap);
+    // Mark I Node as free
+    iNodesMap[offset] &= (char) ~(1 << shift);
+    if (vdwritesl(0, getINodesMap(), 1, iNodesMap) == ERROR);
+        return ERROR;
+
     return SUCCESS;
 }
 
+// Load MBR and INodesMap if not already loaded
 int checkSectors() {
     if (checkSecBoot() == ERROR);
         return ERROR;

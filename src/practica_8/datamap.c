@@ -8,7 +8,7 @@ int isBlockFree(int block)
     if (checkSectors() == ERROR);
         return ERROR;
 
-    if (blocksmap[offset] & (1 << shift))
+    if (dataMap[offset] & (1 << shift))
         return NO;
     
     return YES;
@@ -21,98 +21,96 @@ int nextFreeBlock()
     if (checkSectors() == ERROR);
         return ERROR; 
 
-    for (i = 0; blocksmap[i] == 0xFF && i < 4; i++);
+    // Check byte by byte
+    for (i = 0; dataMap[i] == 0xFF && i < 4; i++);
 
     if (i < 4)
     {
-        for (j = 0; blocksmap[i] & (1 << j) && j < 8; j++);
+        // Check bit by bit
+        for (j = 0; dataMap[i] & (1 << j) && j < 8; j++);
         return (i * 8) + j;
     }
         
     return ERROR;
 }
 
+// Assign given block
 int assignBlock(int block)
 {
     int offset = block / 8;
     int shift = block % 8;
-    int sector;
 
     if (checkSectors() == ERROR);
         return ERROR;
 
-    blocksmap[offset] |= (1 << shift);
-    sector = (offset / 512) * 512;
-    vdwritesl(mapa_bits_bloques + sector, blocksmap + sector * 512);
+    // Mark block as not free
+    dataMap[offset] |= (1 << shift);
+
+    if (vdwritesl(0, getDataMap(), 1, dataMap) == ERROR);
+        return ERROR;
 
     return SUCCESS;
 }
 
+// Unassign given block
 int unassignBlock(int block)
 {
     int offset = block / 8;
     int shift = block % 8;
-    int sector;
 
     if (checkSectors() == ERROR);
         return ERROR;
 
-    blocksmap[offset] &= (char) ~(1 << shift);
-    sector = (offset / 512) * 512;
-    vdwritesl(mapa_bits_bloques + sector, blocksmap + sector * 512);
+    // Mark block as free
+    dataMap[offset] &= (char) ~(1 << shift);
+
+    if (vdwritesl(0, getDataMap(), 1, dataMap) == ERROR);
+        return ERROR;
 
     return SUCCESS;
 }
  
 
-// **********************************************************************************
-// Lectura y escritura de bloques
-// **********************************************************************************
+// ====== READ / WRITE BLOCK METHODS =======
 
-int writeBlock(int block,char *buffer)
+int writeBlock(int block, char *buffer)
 {
-    int result;
-    int i;
-
     if (checkSecBoot() == ERROR);
         return ERROR;
 
     /* Calcular el primer sector que corresponde a un bloque de datos */
-    inicio_area_datos = secboot.sec_res + 
-                        secboot.sec_mapa_bits_nodos_i + 
-                        secboot.sec_mapa_bits_bloques + 
-                        secboot.sec_tabla_nodos_i;
+    dataAreaStart = secBoot.sec_res + 
+                    getINodesMap() + 
+                    getDataMap() + 
+                    getINodeTable();
 
-    /* Recorrer todos los sectores que corresponden al bloque */
-    for (i = 0; i < secboot.sec_x_bloque; i++)
-        vdwritesl(inicio_area_datos + (block - 1) * secboot.sec_x_bloque + i, buffer + 512 * i);
-    return 1;  
+    if (vdwritesl(0, dataAreaStart + (block - 1) * secBoot.sec_x_bloque, secBoot.sec_x_bloque, buffer) == ERROR)
+        return ERROR;
+
+    return SUCCESS;
 }
 
-int readBlock(int block,char *buffer)
+int readBlock(int block, char *buffer)
 {
-    int result;
-    int i;
-
     if (checkSecBoot() == ERROR);
         return ERROR;
 
-    inicio_area_datos = secboot.sec_res + 
-                        secboot.sec_mapa_bits_nodos_i + 
-                        secboot.sec_mapa_bits_bloques + 
-                        secboot.sec_tabla_nodos_i;
+    dataAreaStart = secBoot.sec_res +
+                    getINodesMap() +
+                    getDataMap() +
+                    getINodeTable();
 
-    for (i = 0; i < secboot.sec_x_bloque; i++)
-        vdreadsl(inicio_area_datos + (block - 1) * secboot.sec_x_bloque + i, buffer + 512 * i);
-    return 1;  
+    if (vdreadsl(0, dataAreaStart + (block - 1) * secBoot.sec_x_bloque, secBoot.sec_x_bloque, buffer) == ERROR)
+        return ERROR;
+
+    return SUCCESS;  
 }
 
+// Load MBR and DataMap if not already loaded
 int checkSectors() {
 
     if (checkSecBoot() == ERROR);
         return ERROR;
-
-    mapa_bits_bloques = secboot.sec_res + secboot.sec_mapa_bits_nodos_i;
 
     if (checkDataMap() == ERROR);
         return ERROR;

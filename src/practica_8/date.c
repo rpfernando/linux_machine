@@ -37,19 +37,20 @@ int int2Date(struct DATE *date, unsigned int val)
 
 unsigned int currDateTime2Int()
 {
-  struct tm *tm_ptr;
-  time_t the_time;
+  struct tm *tmPtr;
+  time_t timeVal;
 
   struct DATE date;
 
-  (void) time(&the_time);
-  tm_ptr = gmtime(&the_time);
+  (void) time(&timeVal);
+  tmPtr = gmtime(&timeVal);
 
-  date.year = tm_ptr -> tm_year - 70;
-  date.month = tm_ptr -> tm_mon + 1;
-  date.day = tm_ptr -> tm_mday;
-  date.hour = tm_ptr -> tm_hour;
-  date.min = tm_ptr -> tm_min;
-  date.sec = tm_ptr -> tm_sec;
-  return datetoint(date) ;
+  date.year = tmPtr -> tm_year - 70;
+  date.month = tmPtr -> tm_mon + 1;
+  date.day = tmPtr -> tm_mday;
+  date.hour = tmPtr -> tm_hour;
+  date.min = tmPtr -> tm_min;
+  date.sec = tmPtr -> tm_sec;
+
+  return datetoint(date);
 }

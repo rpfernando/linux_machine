@@ -1,13 +1,6 @@
 #include "vdisk.h"
 #include "sectorhandler.h"
 
-extern short secboot_in_memory;  // sec boot
-extern struct SECBOOT secBoot;
-extern short inodesmap_in_memory; // inode
-extern unsigned char iNodesMap[SECSIZE];
-extern short datamap_in_memory;	//mapa de datos
-extern unsigned char dataMap[SECSIZE];
-
 // ======= FUNCTIONS ======
 
 // Check if I Node is free
@@ -19,5 +12,5 @@ int nextFreeINode();
 // Assign given I Node
 int assignINode(int inode);
 
-// Mark I Node as free
+// Unassign given I Node
 int unassignINode(int inode);

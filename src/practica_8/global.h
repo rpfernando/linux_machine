@@ -70,12 +70,12 @@ struct DATE {
 
 
 struct OPENFILES {
-  int inuse;
-  unsigned short inode;
-  int currpos;
-  int currbloqueenmemoria;
+  int inUse;
+  unsigned short iNode;
+  int currPos;
+  int currBlockInMemory;
   char buffer[2048];
-  unsigned short buffindirect[1024];
+  unsigned short indirectBuff[1024];
 };
 
 
@@ -85,3 +85,21 @@ typedef int VDDIR;
 struct vddirent {
   char *d_name;
 };
+
+
+// ====== SOME FLAGS AND DATA STRUCTURES =======
+
+short secBootInMemory = 0;
+struct SECBOOT secBoot;
+
+short iNodesMapInMemory = 0;
+unsigned char iNodesMap[SECSIZE];
+
+short dataMapInMemory = 0;
+unsigned char dataMap[SECSIZE]; 
+
+short rootDirInMemory = 0; 
+struct INODE dirRaiz[NINODES]; 
+
+short openFilesInMemory = 0;
+struct OPENFILES openfiles[NOPENFILES];
