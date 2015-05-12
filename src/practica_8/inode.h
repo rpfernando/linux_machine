@@ -1,10 +1,10 @@
-#include "vdisk.h"
+// #include "vdisk.h"
 #include "sectorhandler.h"
 
 // ======= FUNCTIONS ======
 
 // Check if I Node is free
-int isINodeFree(int inode);   
+int isINodeFree(int inode);
 
 // Search for a free I Node
 int nextFreeINode();

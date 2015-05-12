@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "vdisk.h"
 
 int main(int argc, char *argv[])
@@ -35,12 +36,12 @@ int main(int argc, char *argv[])
 		mbr.jump[i] = 0;
 	}
 
-	mbr.sec_res = 0;
+	mbr.sec_res = 1;
 	mbr.sec_mapa_bits_nodo_i = 1;
 	mbr.sec_mapa_bits_bloques = 2;
-	mbr.sec_tabla_nodos_i = 3;
-	mbr.sec_log_unidad = HEADS * CYLINDERS * SECTORS; 
-	mbr.sec_x_bloque BLOCKSECT;
+	mbr.sec_tabla_nodos_i = 4;
+	mbr.sec_log_unidad = HEADS * CYLINDERS * SECTORS;
+	mbr.sec_x_bloque = BLOCKSECT;
 	mbr.heads = HEADS;
 	mbr.cyls = CYLINDERS;
 	mbr.secfis = SECTORS;
@@ -51,7 +52,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Write master boot record
-	vdwritesector(diskNum, 0, 0, 1, 1, &mbr);
+	vdwritesector(diskNum, 0, 0, 1, 1, (char*)&mbr);
 
 	for (i = 0; i < SECSIZE; i++)
 		buffer[i] = 0;

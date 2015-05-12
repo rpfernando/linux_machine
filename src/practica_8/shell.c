@@ -6,7 +6,8 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "tiposdatos.h"
+#include "filesystem.h"
+#include "global.h"
 
 #define MAXLEN 80
 #define BUFFERSIZE 512
@@ -25,7 +26,7 @@ int main()
 		read(0, linea, 80);
 		locateend(linea);
 		result = executecmd(linea);
-	} 
+	}
 }
 
 void locateend(char *linea)
@@ -77,8 +78,8 @@ int executecmd(char *linea)
 
 		else if (isinvd(arg1) && isinvd(arg2))
 			copyvv(arg1, arg2);
-			
-		
+
+
 	}
 
 	// comando "cat"
@@ -100,7 +101,7 @@ int executecmd(char *linea)
 	}
 }
 
-/* Regresa verdadero si el nombre del archivo no comienza con // y por lo 
+/* Regresa verdadero si el nombre del archivo no comienza con // y por lo
    tanto es un archivo que está en el disco virtual */
 
 int isinvd(char *arg)
@@ -120,7 +121,7 @@ int copyuu(char *arg1, char *arg2)
 	int sfile, dfile;
 	char buffer[BUFFERSIZE];
 	int ncars;
-	
+
 	sfile = open(arg1,0);
 	dfile = creat(arg2,0640);
 	do {
@@ -129,7 +130,7 @@ int copyuu(char *arg1, char *arg2)
 	} while (ncars == BUFFERSIZE);
 	close(sfile);
 	close(dfile);
-	return(1);	
+	return(1);
 }
 
 
@@ -142,7 +143,7 @@ int copyuv(char *arg1, char *arg2)
 	int sfile, dfile;
 	char buffer[BUFFERSIZE];
 	int ncars;
-	
+
 	sfile = open(arg1, 0);
 	dfile = vdcreat(arg2, 0640);
 	do {
@@ -151,7 +152,7 @@ int copyuv(char *arg1, char *arg2)
 	} while (ncars == BUFFERSIZE);
 	close(sfile);
 	vdclose(dfile);
-	return(1);	
+	return(1);
 }
 
 
@@ -163,7 +164,7 @@ int copyvu(char *arg1, char *arg2)
 	int sfile, dfile;
 	char buffer[BUFFERSIZE];
 	int ncars;
-	
+
 	sfile = vdopen(arg1, 0);
 	dfile = creat(arg2, 0640);
 	do {
@@ -172,7 +173,7 @@ int copyvu(char *arg1, char *arg2)
 	} while (ncars == BUFFERSIZE);
 	vdclose(sfile);
 	close(dfile);
-	return(1);	
+	return(1);
 }
 
 
@@ -185,7 +186,7 @@ int copyvv(char *arg1, char *arg2)
 	int sfile, dfile;
 	char buffer[BUFFERSIZE];
 	int ncars;
-	
+
 	sfile = vdopen(arg1, 0);
 	dfile = vdcreat(arg2, 0640);
 	do {
@@ -194,7 +195,7 @@ int copyvv(char *arg1, char *arg2)
 	} while (ncars == BUFFERSIZE);
 	vdclose(sfile);
 	vdclose(dfile);
-	return(1);		
+	return(1);
 }
 
 
@@ -205,14 +206,14 @@ int catv(char *arg1)
 	int sfile, dfile;
 	char buffer[BUFFERSIZE];
 	int ncars;
-	
+
 	sfile = vdopen(arg1, 0);
 	do {
 		ncars = vdread(sfile, buffer, BUFFERSIZE);
 		write(1, buffer, ncars);  // Escribe en el archivo de salida estandard
 	} while (ncars == BUFFERSIZE);
 	vdclose(sfile);
-	return(1);		
+	return(1);
 }
 
 
@@ -223,14 +224,14 @@ int catu(char *arg1)
 	int sfile, dfile;
 	char buffer[BUFFERSIZE];
 	int ncars;
-	
+
 	sfile = open(arg1, 0);
 	do {
 		ncars = read(sfile, buffer, BUFFERSIZE);
 		write(1, buffer, ncars);  // Escribe en el archivo de salida estandard
 	} while (ncars == BUFFERSIZE);
 	close(sfile);
-	return(1);		
+	return(1);
 }
 
 
@@ -238,7 +239,7 @@ int catu(char *arg1)
 
 int diru(char *arg1)
 {
-	DIR *dd;	
+	DIR *dd;
 	struct dirent *entry;
 
 	if (arg1[0] == '\0')
@@ -252,18 +253,18 @@ int diru(char *arg1)
 		fprintf(stderr, "Error al abrir directorio\n");
 		return(-1);
 	}
-	
+
 	while ((entry = readdir(dd)) != NULL)
 		printf("%s\n", entry -> d_name);
 
-	closedir(dd);	
+	closedir(dd);
 }
 
 /* Muestra el directorio en el sistema de archivos en el disco virtual */
 
 int dirv()
 {
-	VDDIR *dd;	
+	VDDIR *dd;
 	struct vddirent *entry;
 
 	printf("Directorio del disco virtual\n");
@@ -274,10 +275,10 @@ int dirv()
 		fprintf(stderr, "Error al abrir directorio\n");
 		return(-1);
 	}
-	
+
 	while ((entry = vdreaddir(dd)) != NULL)
 		printf("%s\n", entry -> d_name);
 
-	vdclosedir(dd);	
+	vdclosedir(dd);
 }
 

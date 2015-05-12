@@ -1,16 +1,33 @@
 all: createvd format dumpsec dumpseclog
 
-vdisk.o: vdisk.c vdisk.h global.h
+global.o:
+	cc -c global.c
+
+vdisk.o: global.o
 	cc -c vdisk.c
 
-createvd: createvd.c vdisk.o
+filesystem.o: global.o
+	cc -c filesystem.c
+
+createvd:
 	cc -o createvd createvd.c
 
-format: vdformat.c
-	cc -o vdformat vdformat.c
+format: vdisk.o
+	cc -c vdformat.c -iquote .
+	cc -o vdformat vdformat.o vdisk.o
 
-dumpsec: dumpsec.c vdisk.h
-	cc -o dumpsec dumpsec.c
+dumpsec:
+	cc -c dumpsec.c -iquote .
+	cc -o dumpsec dumpsec.o vdisk.o
 
-dumpseclog: dumpseclog.c vdisk.h
-	cc -o dumpseclog dumpseclog.c
+dumpseclog:
+	cc -c dumpseclog.c -iquote .
+	cc -o dumpseclog dumpseclog.o vdisk.o
+
+shell: filesystem.o
+	cc -c shell.c -iquote .
+	cc -o shell shell.o global.o filesystem.o
+
+clean:
+	rm -f *.o
+	rm -f createvd

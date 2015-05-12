@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include "vdisk.h"
 
@@ -24,7 +25,7 @@ int main(int argc, char **argv)
         exit(2);
     }
 
-    sprintf(nombre, "disco%c.vd\0", argv[1][0]);
+    sprintf(nombre, "disco%c.vd", argv[1][0]);
     fp = open(nombre, 0);
 
     if (fp != -1)

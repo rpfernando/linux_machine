@@ -1,4 +1,6 @@
-#include "vdisk.h" 
+#include "vdisk.h"
+
+void performDelay(int drive, int cylinder, int sector);
 
 int currentcyl[4] = {0, 0, 0, 0};
 int currentsec[4] = {0, 0, 0, 0};
@@ -14,11 +16,11 @@ int vdwritesl(int drive, int seclog, int nsecs, char *buffer)
 
 int vdreadsl(int drive, int seclog, int nsecs, char *buffer)
 {
-    int drive = 0;
+    // int drive = 0;
     int nsec = getsec(seclog);
     int ncyl = getcyl(seclog);
     int nhead = gethead(seclog);
-    
+
     return vdreadsector(drive, nhead, ncyl, nsec, nsecs, buffer);
 }
 
@@ -57,14 +59,14 @@ int vdreadsector(int drive, int head, int cylinder, int sector, int nsecs, char 
     fp = open(filename, O_RDONLY);
     if (fp == -1)
         return ERROR;
-                                                                                
+
     // Valida parámetros
     if (isValid(drive, head, cylinder, sector, nsecs) == NO)
         return ERROR;
-                                                                                
+
     // Hace el retardo
     performDelay(drive, cylinder, sector);
-                                                                                
+
     // Calcula la posición en el archivo
     sl = cylinder * SECTORS * HEADS + head * SECTORS + (sector - 1);
     offset = sl * 512;
@@ -105,7 +107,7 @@ void performDelay(int drive, int cylinder, int sector) {
         timesec += SECTORS;
     usleep(timesec * 1000);
     currentsec[drive] = sector;
-                                                                                
+
     timecyl = abs(currentcyl[drive] - cylinder);
     usleep(timecyl * 1000);
     currentcyl[drive] = cylinder;

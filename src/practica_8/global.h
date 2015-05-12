@@ -1,105 +1,109 @@
-// ====== DEFINITIONS ======
+#ifndef __GLOBAL_STRUCTS_FLAGS__
 
-#define HEADS 24
-#define SECTORS 17
-#define CYLINDERS 80
-#define SECSIZE 512
-#define BLOCKSECT 8
+  #define __GLOBAL_STRUCTS_FLAGS__ 1
+  // ====== DEFINITIONS ======
 
-#define BLOCKSIZE SECSIZE * BLOCKSECT
-#define INODESIZE sizeof(struct INODE)
-#define NINODES SECSIZE / INODESIZE * 8
+  #define HEADS 24
+  #define SECTORS 17
+  #define CYLINDERS 80
+  #define SECSIZE 512
+  #define BLOCKSECT 8
 
-#define DIRECTPTRxINODE 10
-#define PTRxBLOCK BLOCKSIZE / sizeof(unsigned short)
-#define NOPENFILES 10
+  #define BLOCKSIZE (SECSIZE * BLOCKSECT)
+  #define INODESIZE sizeof(struct INODE)
+  #define NINODES (SECSIZE / INODESIZE * 8)
 
-#define ERROR -1
-#define SUCCESS 1
+  #define DIRECTPTRxINODE 10
+  #define PTRxBLOCK (BLOCKSIZE / sizeof(unsigned short))
+  #define NOPENFILES 10
 
-#define YES 1
-#define NO 0
+  #define ERROR -1
+  #define SUCCESS 1
 
-#define WHENCE_BEG 0
-#define WHENCE_CUR 1
-#define WHENCE_END 2
+  #define YES 1
+  #define NO 0
 
-#define MAXLEN 80
-#define BUFFERSIZE 512
+  #define WHENCE_BEG 0
+  #define WHENCE_CUR 1
+  #define WHENCE_END 2
 
-// ====== STRUCTURES ======
+  #define MAXLEN 80
+  #define BUFFERSIZE 512
 
-struct INODE {
-  char name[20];
-  unsigned short uid;   
-  unsigned short gid;   
-  unsigned short perms;  
-  unsigned int datetimecreate; 
-  unsigned int datetimemodif; 
-  unsigned int size;
-  unsigned short blocks[10];
-  unsigned short indirect;
-  unsigned short indirect2;
-};
+  // ====== STRUCTURES ======
 
-
-struct SECBOOT {
-  char jump[4];
-  char nombre_disco[8];
-  unsigned char sec_res;
-  unsigned char sec_mapa_bits_nodo_i;
-  unsigned char sec_mapa_bits_bloques;
-  unsigned short sec_tabla_nodos_i;
-  unsigned short sec_log_unidad; 
-  unsigned char sec_x_bloque;
-  unsigned char heads;
-  unsigned char cyls;
-  unsigned char secfis;
-  char restante[487];
-};
+  struct INODE {
+    char name[20];
+    unsigned short uid;
+    unsigned short gid;
+    unsigned short perms;
+    unsigned int datetimecreate;
+    unsigned int datetimemodif;
+    unsigned int size;
+    unsigned short blocks[10];
+    unsigned short indirect;
+    unsigned short indirect2;
+  };
 
 
-struct DATE {
-  int year;
-  int month;
-  int day;
-  int hour;
-  int min;
-  int sec;
-};
+  struct SECBOOT {
+    char jump[4];
+    char nombre_disco[8];
+    unsigned char sec_res;
+    unsigned char sec_mapa_bits_nodo_i;
+    unsigned char sec_mapa_bits_bloques;
+    unsigned short sec_tabla_nodos_i;
+    unsigned short sec_log_unidad;
+    unsigned char sec_x_bloque;
+    unsigned char heads;
+    unsigned char cyls;
+    unsigned char secfis;
+    char restante[487];
+  };
 
 
-struct OPENFILES {
-  int inUse;
-  unsigned short iNode;
-  int currPos;
-  int currBlockInMemory;
-  char buffer[2048];
-  unsigned short indirectBuff[1024];
-};
+  struct DATE {
+    int year;
+    int month;
+    int day;
+    int hour;
+    int min;
+    int sec;
+  };
 
 
-typedef int VDDIR;
+  struct OPENFILES {
+    int inUse;
+    unsigned short iNode;
+    int currPos;
+    int currBlockInMemory;
+    char buffer[2048];
+    unsigned short indirectBuff[1024];
+  };
 
 
-struct vddirent {
-  char *d_name;
-};
+  typedef int VDDIR;
 
 
-// ====== SOME FLAGS AND DATA STRUCTURES =======
+  struct vddirent {
+    char *d_name;
+  };
 
-short secBootInMemory = 0;
-struct SECBOOT secBoot;
 
-short iNodesMapInMemory = 0;
-unsigned char iNodesMap[SECSIZE];
+  // ====== SOME FLAGS AND DATA STRUCTURES =======
 
-short dataMapInMemory = 0;
-unsigned char dataMap[SECSIZE]; 
+  extern short secBootInMemory;
+  extern struct SECBOOT secBoot;
 
-short rootDirInMemory = 0; 
-struct INODE dirRaiz[NINODES]; 
+  extern short iNodesMapInMemory;
+  extern unsigned char iNodesMap[SECSIZE];
 
-short openFilesInMemory = 0;
-struct OPENFILES openfiles[NOPENFILES];
+  extern short dataMapInMemory;
+  extern unsigned char dataMap[SECSIZE];
+
+  extern short rootDirInMemory;
+  extern struct INODE dirRaiz[NINODES];
+
+  extern short openFilesInMemory;
+  extern struct OPENFILES openfiles[NOPENFILES];
+#endif

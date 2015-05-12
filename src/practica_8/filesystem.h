@@ -20,3 +20,9 @@ int vdwrite(int fd, char *buffer, int size);
 
 // Close an open file
 int vdclose(int fd);
+
+VDDIR* vdopendir(char*);
+
+struct vddirent* vdreaddir(VDDIR*);
+
+int vdclosedir(VDDIR*);

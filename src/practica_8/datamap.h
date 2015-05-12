@@ -1,10 +1,9 @@
-#include "vdisk.h"
 #include "sectorhandler.h"
 
 // ======= FUNCTIONS ======
 
 // Check if block is free
-int isBlockFree(int block); 
+int isBlockFree(int block);
 
 // Search for a free block
 int nextFreeBlock();

@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Posición invalida\n");
 		exit(1);
 	}
-	
-	if (vdreadsl(seclog, buffer) == -1)
+
+	if (vdreadsl(0, seclog, 1, (char*)buffer) == -1)
 	{
 		fprintf(stderr,"Error al abrir disco virtual\n");
 		exit(1);
