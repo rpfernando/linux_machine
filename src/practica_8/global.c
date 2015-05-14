@@ -10,7 +10,7 @@ short dataMapInMemory = 0;
 unsigned char dataMap[SECSIZE];
 
 short rootDirInMemory = 0;
-struct INODE dirRaiz[NINODES];
+struct INODE rootDir[NINODES];
 
 short openFilesInMemory = 0;
 struct OPENFILES openfiles[NOPENFILES];

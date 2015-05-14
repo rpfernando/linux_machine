@@ -4,17 +4,22 @@
 #include <fcntl.h>
 #include "global.h"
 
-// ======= FUNCTIONS ======
+#ifndef __VDISK_LIB__
 
-// Logic sector read/write
-int vdwritesl(int drive, int seclog, int nsecs, char *buffer);
-int vdreadsl(int drive, int seclog, int nsecs, char *buffer);
+  #define __VDISK_LIB__ 1
+  // ======= FUNCTIONS ======
 
-// Sector read/write
-int vdwritesector(int drive, int head, int cylinder, int sector, int nsecs, char *buffer);
-int vdreadsector(int drive, int head, int cylinder, int sector, int nsecs, char *buffer);
+  // Logic sector read/write
+  int vdwritesl(int drive, int seclog, int nsecs, char *buffer);
+  int vdreadsl(int drive, int seclog, int nsecs, char *buffer);
 
-// Helper methods
-int getcyl(int seclog);
-int getsec(int seclog);
-int gethead(int seclog);
+  // Sector read/write
+  int vdwritesector(int drive, int head, int cylinder, int sector, int nsecs, char *buffer);
+  int vdreadsector(int drive, int head, int cylinder, int sector, int nsecs, char *buffer);
+
+  // Helper methods
+  int getcyl(int seclog);
+  int getsec(int seclog);
+  int gethead(int seclog);
+
+#endif

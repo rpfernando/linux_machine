@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
 	mbr.sec_res = 1;
 	mbr.sec_mapa_bits_nodo_i = 1;
-	mbr.sec_mapa_bits_bloques = 2;
+	mbr.sec_mapa_bits_bloques = 1;
 	mbr.sec_tabla_nodos_i = 4;
 	mbr.sec_log_unidad = HEADS * CYLINDERS * SECTORS;
 	mbr.sec_x_bloque = BLOCKSECT;

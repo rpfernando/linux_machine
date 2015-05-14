@@ -1,16 +1,30 @@
-// #include "vdisk.h"
+#include <string.h>
 #include "sectorhandler.h"
+#include "datamap.h"
+#include "date.h"
 
-// ======= FUNCTIONS ======
+#ifndef __INODE_LIB__
 
-// Check if I Node is free
-int isINodeFree(int inode);
+  #define __INODE_LIB__ 1
 
-// Search for a free I Node
-int nextFreeINode();
+  // ======= FUNCTIONS ======
 
-// Assign given I Node
-int assignINode(int inode);
+  // Check if I Node is free
+  int isINodeFree(int inode);
 
-// Unassign given I Node
-int unassignINode(int inode);
+  // Search for a free I Node
+  int nextFreeINode();
+
+  // Assign given I Node
+  int assignINode(int inode);
+
+  // Unassign given I Node
+  int unassignINode(int inode);
+
+  int setninode(int num, char *filename,unsigned short atribs, int uid, int gid);
+
+  int searchinode(char *filename);
+
+  int removeinode(int numinode);
+
+#endif

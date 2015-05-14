@@ -11,7 +11,7 @@
 
   #define BLOCKSIZE (SECSIZE * BLOCKSECT)
   #define INODESIZE sizeof(struct INODE)
-  #define NINODES (SECSIZE / INODESIZE * 8)
+  #define NINODES 32
 
   #define DIRECTPTRxINODE 10
   #define PTRxBLOCK (BLOCKSIZE / sizeof(unsigned short))
@@ -89,21 +89,20 @@
     char *d_name;
   };
 
-
   // ====== SOME FLAGS AND DATA STRUCTURES =======
 
   extern short secBootInMemory;
   extern struct SECBOOT secBoot;
 
   extern short iNodesMapInMemory;
-  extern unsigned char iNodesMap[SECSIZE];
+  extern unsigned char iNodesMap[];
 
   extern short dataMapInMemory;
-  extern unsigned char dataMap[SECSIZE];
+  extern unsigned char dataMap[];
 
   extern short rootDirInMemory;
-  extern struct INODE dirRaiz[NINODES];
+  extern struct INODE rootDir[];
 
   extern short openFilesInMemory;
-  extern struct OPENFILES openfiles[NOPENFILES];
+  extern struct OPENFILES openfiles[];
 #endif

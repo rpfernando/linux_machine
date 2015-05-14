@@ -4,7 +4,7 @@
 int vdcreat(char *filename, unsigned short mode);
 
 // Open an existing file
-int vdopen(char *filename, int flags);
+int vdopen(char *filename, unsigned short mode);
 
 // Deletes a file
 int vdunlink(char *filename);

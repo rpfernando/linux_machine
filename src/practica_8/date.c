@@ -1,3 +1,4 @@
+#include "date.h"
 
 unsigned int date2Int(struct DATE date)
 {
@@ -52,5 +53,5 @@ unsigned int currDateTime2Int()
   date.min = tmPtr -> tm_min;
   date.sec = tmPtr -> tm_sec;
 
-  return datetoint(date);
+  return date2Int(date);
 }

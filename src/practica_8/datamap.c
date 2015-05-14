@@ -10,16 +10,16 @@ int isBlockFree(int block)
 
     if (dataMap[offset] & (1 << shift))
         return NO;
-    
+
     return YES;
-}   
+}
 
 int nextFreeBlock()
 {
     int i, j;
 
     if (checkSectors() == ERROR);
-        return ERROR; 
+        return ERROR;
 
     // Check byte by byte
     for (i = 0; dataMap[i] == 0xFF && i < 4; i++);
@@ -30,7 +30,7 @@ int nextFreeBlock()
         for (j = 0; dataMap[i] & (1 << j) && j < 8; j++);
         return (i * 8) + j;
     }
-        
+
     return ERROR;
 }
 
@@ -69,20 +69,17 @@ int unassignBlock(int block)
 
     return SUCCESS;
 }
- 
 
 // ====== READ / WRITE BLOCK METHODS =======
 
 int writeBlock(int block, char *buffer)
 {
+    int dataAreaStart = getDataBlock();
+
     if (checkSecBoot() == ERROR);
         return ERROR;
 
     /* Calcular el primer sector que corresponde a un bloque de datos */
-    dataAreaStart = secBoot.sec_res + 
-                    getINodesMap() + 
-                    getDataMap() + 
-                    getINodeTable();
 
     if (vdwritesl(0, dataAreaStart + (block - 1) * secBoot.sec_x_bloque, secBoot.sec_x_bloque, buffer) == ERROR)
         return ERROR;
@@ -92,18 +89,16 @@ int writeBlock(int block, char *buffer)
 
 int readBlock(int block, char *buffer)
 {
+    int dataAreaStart = getDataBlock();
+
     if (checkSecBoot() == ERROR);
         return ERROR;
 
-    dataAreaStart = secBoot.sec_res +
-                    getINodesMap() +
-                    getDataMap() +
-                    getINodeTable();
 
     if (vdreadsl(0, dataAreaStart + (block - 1) * secBoot.sec_x_bloque, secBoot.sec_x_bloque, buffer) == ERROR)
         return ERROR;
 
-    return SUCCESS;  
+    return SUCCESS;
 }
 
 // Load MBR and DataMap if not already loaded

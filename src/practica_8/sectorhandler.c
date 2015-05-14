@@ -1,8 +1,8 @@
 #include "sectorhandler.h"
 
 int checkSecBoot()
-{ 
-    int result = SUCCESS
+{
+    int result = SUCCESS;
 
     // Check whether the superblock is in memory
     if (!secBootInMemory)
@@ -40,7 +40,7 @@ int checkDataMap()
     {
         // Load "Data Map"
         int sl = getDataMap();
-        result = vdreadsl(0, sl, 1, &dataMap);
+        result = vdreadsl(0, sl, 1, (char *) &dataMap);
         dataMapInMemory = 1;
     }
 
@@ -58,7 +58,7 @@ int checkRootDir()
         // Load "Root Dir"
         int sl = getINodeTable();
         int nsecs = getDataBlock() - getINodeTable();
-        result = vdreadsl(0, sl, nsecs, &rootDir);
+        result = vdreadsl(0, sl, nsecs, (char *) &rootDir);
         rootDirInMemory = 1;
     }
 
@@ -73,8 +73,8 @@ int checkOpenFiles()
     {
         for (i = 3; i < NOPENFILES; i++)
         {
-            openFiles[i].inUse = 0; // File is not been used
-            openFiles[i].currBlockInMemory = -1; // No block assigned yet
+            openfiles[i].inUse = 0; // File is not been used
+            openfiles[i].currBlockInMemory = -1; // No block assigned yet
         }
 
         openFilesInMemory = 1;
@@ -88,20 +88,30 @@ int checkOpenFiles()
 
 int getINodesMap()
 {
-    return secBoot.sec_mapa_bits_nodo_i;
+    checkSecBoot();
+    return secBoot.sec_res;
 }
 
 int getDataMap()
 {
-    return secBoot.sec_mapa_bits_bloques;
+    checkSecBoot();
+    return secBoot.sec_res +
+            secBoot.sec_mapa_bits_nodo_i;
 }
 
 int getINodeTable()
 {
-    return secBoot.sec_tabla_nodos_i;
+    checkSecBoot();
+    return secBoot.sec_res +
+            secBoot.sec_mapa_bits_nodo_i +
+            secBoot.sec_mapa_bits_bloques;
 }
 
 int getDataBlock()
 {
-    return secBoot.sec_log_unidad;
+    checkSecBoot();
+    return secBoot.sec_res +
+            secBoot.sec_mapa_bits_nodo_i +
+            secBoot.sec_mapa_bits_bloques +
+            secBoot.sec_tabla_nodos_i;
 }
