@@ -104,10 +104,10 @@ int readBlock(int block, char *buffer)
 // Load MBR and DataMap if not already loaded
 int checkSectors() {
 
-    if (checkSecBoot() == ERROR);
+    if (checkSecBoot() == ERROR)
         return ERROR;
 
-    if (checkDataMap() == ERROR);
+    if (checkDataMap() == ERROR)
         return ERROR;
 
     return SUCCESS;

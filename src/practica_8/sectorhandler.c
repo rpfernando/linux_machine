@@ -74,7 +74,7 @@ int checkOpenFiles()
         for (i = 3; i < NOPENFILES; i++)
         {
             openfiles[i].inUse = 0; // File is not been used
-            openfiles[i].currBlockInMemory = -1; // No block assigned yet
+            openfiles[i].currBlockInMemory = 0; // No block assigned yet
         }
 
         openFilesInMemory = 1;

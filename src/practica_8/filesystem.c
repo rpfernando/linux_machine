@@ -32,26 +32,15 @@ int vdcreat(char *filename, unsigned short mode)
 
     // Poner el archivo en la tabla de archivos abiertos
 
-    if(!openFilesInMemory)
-    {
-        for(i=3; i<16; i++)
-        {
-            openfiles[i].inUse = 0;
-            openfiles[i].currBlockInMemory =- 1;
-        }
-        openFilesInMemory = 1;
-    }
+    checkOpenFiles();
 
     // Buscar si hay lugar en la tabla de archivos abiertos
     // Si no hay lugar, regresa -1
-    i = 3;
-    while(openfiles[i].inUse && i < 16)
-        i++;
+    for(i = 3; openfiles[i].inUse && i < NOPENFILES; i++);
 
     // Si no hay lugar en la tabla de archivos para
     // el que queremos abrir, regresamos error (-1)
-    if(i >= 16)
-        return -1;
+    if(i >= NOPENFILES) return -1;
 
     // Si hay lugar, vamos a poner la entrada en uso
     // Ponemos en la tabla el inodo que corresponde al
@@ -76,21 +65,12 @@ int vdopen(char *filename, unsigned short mode)
     numinode = searchinode(filename);
     if(numinode == -1) return(-1);
 
-    // Si no está inicializada la tabla de archivos abiertos inicialízala
-    if(!openFilesInMemory)
-    {
-        for(i = 3; i < 16; i++)
-        {
-            openfiles[i].inUse = 0;
-            openfiles[i].currBlockInMemory =- 1;
-        }
-        openFilesInMemory = 1;
-    }
+    checkOpenFiles();
 
     // Buscar si hay lugar en la tabla de archivos abiertos
     // Si no hay lugar, regresa -1
-    for(i = 3; openfiles[i].inUse && i < 16; i++);
-    if(i >= 16) return -1;
+    for(i = 3; openfiles[i].inUse && i < NOPENFILES; i++);
+    if(i >= NOPENFILES) return -1;
 
     openfiles[i].inUse = 1;
     openfiles[i].iNode = numinode;
@@ -255,7 +235,7 @@ int vdwrite(int fd, char *buffer, int size)
 {
     int currblock;
     int currinode;
-    int inicio_nodos_i;
+    int inicio_nodos_i = getINodeTable();
     int cont = 0;
     int sector;
     int i;
@@ -267,10 +247,6 @@ int vdwrite(int fd, char *buffer, int size)
         return(-1);
 
     currinode = openfiles[fd].iNode;
-
-    inicio_nodos_i = secBoot.sec_res;
-    inicio_nodos_i += secBoot.sec_mapa_bits_nodo_i;
-    inicio_nodos_i += secBoot.sec_mapa_bits_bloques;
 
     // Cada iteración del ciclo copia un caracter
     // de la entrada buffer al buffer del bloque
@@ -333,8 +309,15 @@ int vdwrite(int fd, char *buffer, int size)
 // Close an open file
 int vdclose(int fd)
 {
-    // TODO
-    return 0;
+    if(fd >= NOPENFILES || fd < 0) {
+        return ERROR;
+    }
+
+    openfiles[fd].inUse = 0;
+    openfiles[fd].iNode = 0;
+    openfiles[fd].currPos = 0;
+
+    return SUCCESS;
 }
 
 VDDIR* vdopendir(char* dir)

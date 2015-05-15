@@ -20,7 +20,7 @@ int nextFreeINode()
 {
     int i, j;
 
-    if (checkSectors() == ERROR);
+    if (checkSectors() == ERROR)
         return ERROR;
 
     // Check byte by byte

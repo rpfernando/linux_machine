@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     char buffer[SECSIZE];
 
     // Missing argument
-	if (argc != 1)
+	if (argc != 2)
 	{
 		printf("Expected 1 argument, example ./vdformat 0\n");
 		return ERROR;
@@ -66,5 +66,5 @@ int main(int argc, char *argv[])
 	// Clean data bitmap sector
 	vdwritesector(diskNum, 0, 0, 3, 1, buffer);
 
-	return SUCCESS;
+	return 1;
 }

@@ -146,13 +146,17 @@ int copyuv(char *arg1, char *arg2)
 
 	sfile = open(arg1, 0);
 	dfile = vdcreat(arg2, 0640);
+	if(dfile == -1) {
+		printf("File not open\n");
+		return 1;
+	}
 	do {
 		ncars = read(sfile, buffer, BUFFERSIZE);
 		vdwrite(dfile, buffer, ncars);
 	} while (ncars == BUFFERSIZE);
 	close(sfile);
 	vdclose(dfile);
-	return(1);
+	return 1;
 }
 
 
@@ -173,7 +177,7 @@ int copyvu(char *arg1, char *arg2)
 	} while (ncars == BUFFERSIZE);
 	vdclose(sfile);
 	close(dfile);
-	return(1);
+	return 1;
 }
 
 
@@ -258,6 +262,7 @@ int diru(char *arg1)
 		printf("%s\n", entry -> d_name);
 
 	closedir(dd);
+	return 1;
 }
 
 /* Muestra el directorio en el sistema de archivos en el disco virtual */
@@ -280,5 +285,6 @@ int dirv()
 		printf("%s\n", entry -> d_name);
 
 	vdclosedir(dd);
+	return 1;
 }
 

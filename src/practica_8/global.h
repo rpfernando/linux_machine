@@ -30,6 +30,7 @@
   #define MAXLEN 80
   #define BUFFERSIZE 512
 
+  #define DIRDEPTH 2
   // ====== STRUCTURES ======
 
   struct INODE {
@@ -105,4 +106,7 @@
 
   extern short openFilesInMemory;
   extern struct OPENFILES openfiles[];
+
+  extern VDDIR dirs[DIRDEPTH];
+  extern struct vddirent dirActual;
 #endif

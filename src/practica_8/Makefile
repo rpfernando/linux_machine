@@ -21,8 +21,9 @@ date.o: global.o
 datamap.o: sectorhandler.o
 	cc -c datamap.c -iquote .
 
-createvd:
-	cc -o createvd createvd.c
+createvd: global.o
+	cc -c createvd.c -iquote .
+	cc -o createvd createvd.o global.o
 
 format: vdisk.o
 	cc -c vdformat.c -iquote .
@@ -40,10 +41,16 @@ shell: global.o vdisk.o date.o datamap.o sectorhandler.o inode.o filesystem.o
 	cc -c shell.c -iquote .
 	cc -o shell global.o vdisk.o date.o datamap.o sectorhandler.o inode.o filesystem.o shell.o
 
-run-shell: shell
+vd0: createvd format
+	./createvd 0
+	./vdformat 0
+
+
+run-shell: all
 	./shell
 
 clean:
-	rm -f *.o
-	rm -f createvd dumpsec dumpseclog vdformat shell
-	rm -f *.vd
+	@rm -f *.o
+	@rm -f createvd dumpsec dumpseclog vdformat shell
+	# @rm -f *.vd
+	@echo "Clean"
