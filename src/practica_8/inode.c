@@ -6,7 +6,7 @@ int isINodeFree(int inode)
     int offset = inode / 8;
     int shift = inode % 8;
 
-    if (checkSectors() == ERROR);
+    if (checkSectors() == ERROR)
         return ERROR;
 
     if (iNodesMap[offset] & (1 << shift))
@@ -42,12 +42,12 @@ int assignINode(int inode)
     int offset = inode / 8;
     int shift = inode % 8;
 
-    if (checkSectors() == ERROR);
+    if (checkSectors() == ERROR)
         return ERROR;
 
     // Mark I Node as not free
     iNodesMap[offset] |= (1 << shift);
-    if (vdwritesl(0, getINodesMap(), 1, iNodesMap) == ERROR);
+    if (vdwritesl(0, getINodesMap(), 1, iNodesMap) == ERROR)
         return ERROR;
 
     return SUCCESS;
@@ -59,12 +59,12 @@ int unassignINode(int inode)
     int offset = inode / 8;
     int shift = inode % 8;
 
-    if (checkSectors() == ERROR);
+    if (checkSectors() == ERROR)
         return ERROR;
 
     // Mark I Node as free
     iNodesMap[offset] &= (char) ~(1 << shift);
-    if (vdwritesl(0, getINodesMap(), 1, iNodesMap) == ERROR);
+    if (vdwritesl(0, getINodesMap(), 1, iNodesMap) == ERROR)
         return ERROR;
 
     return SUCCESS;

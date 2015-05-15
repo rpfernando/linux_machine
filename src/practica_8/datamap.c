@@ -5,7 +5,7 @@ int isBlockFree(int block)
     int offset = block / 8;
     int shift = block % 8;
 
-    if (checkSectors() == ERROR);
+    if (checkSectors() == ERROR)
         return ERROR;
 
     if (dataMap[offset] & (1 << shift))
@@ -18,7 +18,7 @@ int nextFreeBlock()
 {
     int i, j;
 
-    if (checkSectors() == ERROR);
+    if (checkSectors() == ERROR)
         return ERROR;
 
     // Check byte by byte
@@ -40,13 +40,13 @@ int assignBlock(int block)
     int offset = block / 8;
     int shift = block % 8;
 
-    if (checkSectors() == ERROR);
+    if (checkSectors() == ERROR)
         return ERROR;
 
     // Mark block as not free
     dataMap[offset] |= (1 << shift);
 
-    if (vdwritesl(0, getDataMap(), 1, dataMap) == ERROR);
+    if (vdwritesl(0, getDataMap(), 1, dataMap) == ERROR)
         return ERROR;
 
     return SUCCESS;
@@ -58,13 +58,13 @@ int unassignBlock(int block)
     int offset = block / 8;
     int shift = block % 8;
 
-    if (checkSectors() == ERROR);
+    if (checkSectors() == ERROR)
         return ERROR;
 
     // Mark block as free
     dataMap[offset] &= (char) ~(1 << shift);
 
-    if (vdwritesl(0, getDataMap(), 1, dataMap) == ERROR);
+    if (vdwritesl(0, getDataMap(), 1, dataMap) == ERROR)
         return ERROR;
 
     return SUCCESS;
@@ -76,7 +76,7 @@ int writeBlock(int block, char *buffer)
 {
     int dataAreaStart = getDataBlock();
 
-    if (checkSecBoot() == ERROR);
+    if (checkSecBoot() == ERROR)
         return ERROR;
 
     /* Calcular el primer sector que corresponde a un bloque de datos */
@@ -91,7 +91,7 @@ int readBlock(int block, char *buffer)
 {
     int dataAreaStart = getDataBlock();
 
-    if (checkSecBoot() == ERROR);
+    if (checkSecBoot() == ERROR)
         return ERROR;
 
 
