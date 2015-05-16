@@ -6,7 +6,7 @@ int isINodeFree(int inode)
     int offset = inode / 8;
     int shift = inode % 8;
 
-    if (checkSectors() == ERROR)
+    if (checkINodesMap() == ERROR)
         return ERROR;
 
     if (iNodesMap[offset] & (1 << shift))
@@ -20,7 +20,7 @@ int nextFreeINode()
 {
     int i, j;
 
-    if (checkSectors() == ERROR)
+    if (checkINodesMap() == ERROR)
         return ERROR;
 
     // Check byte by byte
@@ -42,7 +42,7 @@ int assignINode(int inode)
     int offset = inode / 8;
     int shift = inode % 8;
 
-    if (checkSectors() == ERROR)
+    if (checkINodesMap() == ERROR)
         return ERROR;
 
     // Mark I Node as not free
@@ -59,7 +59,7 @@ int unassignINode(int inode)
     int offset = inode / 8;
     int shift = inode % 8;
 
-    if (checkSectors() == ERROR)
+    if (checkINodesMap() == ERROR)
         return ERROR;
 
     // Mark I Node as free
@@ -145,14 +145,16 @@ int removeinode(int numinode)
 {
     int i;
 
-    unsigned short temp[2048];
+    unsigned short temp[BLOCKSIZE];
 
     // Recorrer los apuntadores directos del inodo
     // Poner en 0 su bit correspondiente en el mapa
     // de bits
-    for(i=0;i<10;i++)
-        if(rootDir[numinode].blocks[i]!=0)
+    for(i = 0; i < 10; i++) {
+        if(rootDir[numinode].blocks[i] != 0) {
             unassignBlock(rootDir[numinode].blocks[i]);
+        }
+    }
 
     // Recorrer los apuntadores indirectos
     if(rootDir[numinode].indirect!=0)
@@ -163,17 +165,19 @@ int removeinode(int numinode)
 
         // Recorrer todos los apuntadores y poner en 0
         // el bit correspondiente en el mapa de bits
-        for(i=0;i<2048;i++)
-            if(temp[i]!=0)
+        for(i = 0; i < BLOCKSIZE; i++) {
+            if(temp[i] != 0) {
                 unassignBlock(temp[i]);
+            }
+        }
 
         // Desasignar el bloque que contiene los
         // apuntadores.
         unassignBlock(rootDir[numinode].indirect);
-        rootDir[numinode].indirect=0;
+        rootDir[numinode].indirect = 0;
     }
 
     // Desasignar el inodo
     unassignINode(numinode);
-    return(1);
+    return 1;
 }

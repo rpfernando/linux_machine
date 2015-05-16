@@ -9,9 +9,6 @@
 #include "filesystem.h"
 #include "global.h"
 
-#define MAXLEN 80
-#define BUFFERSIZE 512
-
 void locateend(char *cmd);
 int executecmd(char *cmd);
 
@@ -99,6 +96,24 @@ int executecmd(char *linea)
 		else if (!isinvd(arg1))
 			diru(&arg1[2]);
 	}
+
+	//rm
+	if (strcmp(cmd, "rm") == 0)
+	{
+		if (arg1 != NULL && isinvd(arg1))
+			rmu(arg1);
+	}
+}
+
+
+/* */
+int rmu(char *arg)
+{
+	if (vdunlink(arg) == -1)
+	{
+		printf("File not found\n");
+	}
+	return 1;
 }
 
 /* Regresa verdadero si el nombre del archivo no comienza con // y por lo
@@ -212,6 +227,10 @@ int catv(char *arg1)
 	int ncars;
 
 	sfile = vdopen(arg1, 0);
+	if(sfile == -1) {
+		printf("File not open\n");
+		return 1;
+	}
 	do {
 		ncars = vdread(sfile, buffer, BUFFERSIZE);
 		write(1, buffer, ncars);  // Escribe en el archivo de salida estandard
