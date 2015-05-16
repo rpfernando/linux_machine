@@ -97,6 +97,7 @@ int vdunlink(char *filename)
     numinode = searchinode(filename);
     if(numinode == -1) return -1; // No existe
 
+    setninode(numinode, "", 0, getuid(), getgid());
     removeinode(numinode);
     return 0;
 }
@@ -211,7 +212,7 @@ int vdread(int fd, char *buffer, int size)
         }
 
         // Copia el caracter al buffer
-        buffer[cont] = openfiles[fd].buffer[openfiles[fd].currPos%4096];
+        buffer[cont] = openfiles[fd].buffer[openfiles[fd].currPos % BLOCKSIZE];
 
         // Incrementa posición
         openfiles[fd].currPos++;
@@ -224,7 +225,7 @@ int vdread(int fd, char *buffer, int size)
         cont++;
 
         // Si se llena el buffer, escríbelo
-        if(openfiles[fd].currPos%4096 == 0)
+        if(openfiles[fd].currPos % BLOCKSIZE == 0)
             writeBlock(currblock,openfiles[fd].buffer);
     }
     return cont;
@@ -286,7 +287,7 @@ int vdwrite(int fd, char *buffer, int size)
         }
 
         // Copia el caracter al buffer
-        openfiles[fd].buffer[openfiles[fd].currPos%4096] = buffer[cont];
+        openfiles[fd].buffer[openfiles[fd].currPos % BLOCKSIZE] = buffer[cont];
 
         // Incrementa posición
         openfiles[fd].currPos++;
@@ -299,8 +300,11 @@ int vdwrite(int fd, char *buffer, int size)
         cont++;
 
         // Si se llena el buffer, escríbelo
-        if(openfiles[fd].currPos%4096 == 0)
+        if(openfiles[fd].currPos % BLOCKSIZE == 0)
             writeBlock(currblock,openfiles[fd].buffer);
+    }
+    if(cont % 4096 != 0) {
+        writeBlock(currblock, openfiles[fd].buffer);
     }
     return(cont);
 }
@@ -346,16 +350,18 @@ int vdclosedir(VDDIR* dir)
 unsigned short *postoptr(int fd, int pos)
 {
     int currinode;
+    int sector;
+    int currblock = (pos/BLOCKSIZE);
     unsigned short *currptr;
     unsigned short indirect1;
 
     currinode = openfiles[fd].iNode;
 
     // Está en los primeros 10 K
-    if((pos/BLOCKSIZE) < 10)
+    if(currblock < 10)
         // Está entre los 10 apuntadores directos
-        currptr = &rootDir[currinode].blocks[pos/BLOCKSIZE];
-    else if((pos/BLOCKSIZE) < (2048+10))
+        currptr = &rootDir[currinode].blocks[currblock];
+    else if(currblock < (PTRxBLOCK+10))
     {
         // Si el indirecto está vacío, asígnale un bloque
         if(rootDir[currinode].indirect == 0)
@@ -364,8 +370,11 @@ unsigned short *postoptr(int fd, int pos)
             indirect1 = nextFreeBlock();
             assignBlock(indirect1); // Asígnalo
             rootDir[currinode].indirect = indirect1;
+            sector = (currinode/8)*8;
+            vdwritesl(0, getINodeTable()+sector, 1, (char *) &rootDir[sector*8]);
+            readBlock(indirect1, (char *) openfiles[fd].indirectBuff);
         }
-        currptr = &openfiles[fd].indirectBuff[pos/BLOCKSIZE-10];
+        currptr = &openfiles[fd].indirectBuff[currblock-10];
     }
     else {
         return NULL;
