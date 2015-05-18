@@ -100,18 +100,30 @@ int executecmd(char *linea)
 	//rm
 	if (strcmp(cmd, "rm") == 0)
 	{
-		if (arg1 != NULL && isinvd(arg1))
-			rmu(arg1);
+		if (isinvd(arg1))
+			rmv(arg1);
+		else
+			catu(&arg1[2]);
 	}
 }
 
 
 /* */
-int rmu(char *arg)
+int rmv(char *arg)
 {
 	if (vdunlink(arg) == -1)
 	{
 		printf("File not found\n");
+	}
+	return 1;
+}
+
+/* */
+int rmu(char *arg)
+{
+	if (unlink(arg) == -1)
+	{
+		printf("File not deleted\n");
 	}
 	return 1;
 }

@@ -223,10 +223,6 @@ int vdread(int fd, char *buffer, int size)
 
         // Incrementa el contador
         cont++;
-
-        // Si se llena el buffer, escríbelo
-        if(openfiles[fd].currPos % BLOCKSIZE == 0)
-            writeBlock(currblock,openfiles[fd].buffer);
     }
     return cont;
 }
