@@ -217,14 +217,12 @@ int vdread(int fd, char *buffer, int size)
         // Incrementa posición
         openfiles[fd].currPos++;
 
-        // Si la posición es mayor que el tamaño, modifica el tamaño
-        if(openfiles[fd].currPos > rootDir[currinode].size)
-            rootDir[openfiles[fd].iNode].size = openfiles[fd].currPos;
-
         // Incrementa el contador
         cont++;
+
+        if (rootDir[openfiles[fd].iNode].size < cont) return cont;
     }
-    return cont;
+    return size;
 }
 
 // Write into an open file
