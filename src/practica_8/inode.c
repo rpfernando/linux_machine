@@ -145,7 +145,7 @@ int removeinode(int numinode)
 {
     int i;
 
-    unsigned short temp[BLOCKSIZE];
+    unsigned short temp[PTRxBLOCK];
 
     // Recorrer los apuntadores directos del inodo
     // Poner en 0 su bit correspondiente en el mapa
@@ -165,7 +165,7 @@ int removeinode(int numinode)
 
         // Recorrer todos los apuntadores y poner en 0
         // el bit correspondiente en el mapa de bits
-        for(i = 0; i < BLOCKSIZE; i++) {
+        for(i = 0; i < PTRxBLOCK; i++) {
             if(temp[i] != 0) {
                 unassignBlock(temp[i]);
             }
