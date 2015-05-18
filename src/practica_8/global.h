@@ -30,7 +30,7 @@
   #define MAXLEN 80
   #define BUFFERSIZE 512
 
-  #define DIRDEPTH 2
+  #define DIRDEPTH 1
   // ====== STRUCTURES ======
 
   struct INODE {
@@ -86,7 +86,7 @@
   typedef int VDDIR;
 
 
-  struct vddirent {
+  struct VDDIRENT {
     char *d_name;
   };
 
@@ -108,5 +108,5 @@
   extern struct OPENFILES openfiles[];
 
   extern VDDIR dirs[DIRDEPTH];
-  extern struct vddirent dirActual;
+  extern struct VDDIRENT currDir;
 #endif

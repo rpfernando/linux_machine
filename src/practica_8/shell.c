@@ -289,7 +289,7 @@ int diru(char *arg1)
 int dirv()
 {
 	VDDIR *dd;
-	struct vddirent *entry;
+	struct VDDIRENT *entry;
 
 	printf("Directorio del disco virtual\n");
 

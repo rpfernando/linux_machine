@@ -25,7 +25,7 @@ int vdclose(int fd);
 VDDIR* vdopendir(char*);
 
 // Read from an open dir
-struct vddirent* vdreaddir(VDDIR*);
+struct VDDIRENT* vdreaddir(VDDIR*);
 
 // Close an open dir
 int vdclosedir(VDDIR*);

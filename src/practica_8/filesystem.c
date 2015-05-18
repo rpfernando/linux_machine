@@ -326,19 +326,46 @@ int vdclose(int fd)
 
 VDDIR* vdopendir(char* dir)
 {
-    // TODO
-    return 0;
+    if (checkRootDir() == ERROR)
+        return ERROR;
+
+    if (strcmp(dir, ".") != 0)
+        return NULL;
+
+    int i = 0;
+
+    while (dirs[i] != -1 && i < 2) i++;
+
+    if (i == 2)
+        return NULL;
+
+    dirs[i] = 0;
+
+    return &dirs[i];
 }
 
-struct vddirent* vdreaddir(VDDIR* dir)
+struct VDDIRENT* vdreaddir(VDDIR* dir)
 {
-    // TODO
-    return 0;
+    if (checkRootDir() == ERROR)
+        return ERROR;
+
+    // Mientras no haya nodo i, avanza
+    while(isINodeFree(*dir) && *dir < 4096) (*dir)++;
+
+    // Apunta a donde está el nombre en el inodo
+    currDir.d_name = rootDir[*dir].name;
+
+    (*dir)++;
+
+    if (*dir >= 4096)
+        return NULL;
+
+    return &currDir;
 }
 
 int vdclosedir(VDDIR* dir)
 {
-    // TODO
+    dir = -1;
     return 0;
 }
 

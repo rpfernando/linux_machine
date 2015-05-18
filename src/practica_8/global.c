@@ -15,5 +15,5 @@ struct INODE rootDir[NINODES];
 short openFilesInMemory = 0;
 struct OPENFILES openfiles[NOPENFILES];
 
-VDDIR dirs[DIRDEPTH] = {-1, -1};
-struct vddirent dirActual;
+VDDIR dirs[DIRDEPTH] = {-1};
+struct VDDIRENT currDir;
