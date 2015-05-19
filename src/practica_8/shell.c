@@ -103,7 +103,7 @@ int executecmd(char *linea)
 		if (isinvd(arg1))
 			rmv(arg1);
 		else
-			catu(&arg1[2]);
+			rmu(&arg1[2]);
 	}
 }
 
