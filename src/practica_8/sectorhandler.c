@@ -8,7 +8,7 @@ int checkSecBoot()
     if (!secBootInMemory)
     {
         // Load superblock
-        result = vdreadsl(0, 0, 1, (char *) &secBoot);
+        result = vdreadsl(0, 0, (char *) &secBoot);
         secBootInMemory = 1;
     }
 
@@ -24,7 +24,7 @@ int checkINodesMap()
     {
         // Load "I Nodes Map"
         int sl = getINodesMap();
-        result = vdreadsl(0, sl, 1, (char *) &iNodesMap);
+        result = vdreadsl(0, sl, (char *) &iNodesMap);
         iNodesMapInMemory = 1;
     }
 
@@ -40,7 +40,7 @@ int checkDataMap()
     {
         // Load "Data Map"
         int sl = getDataMap();
-        result = vdreadsl(0, sl, 1, (char *) &dataMap);
+        result = vdreadsl(0, sl, (char *) &dataMap);
         dataMapInMemory = 1;
     }
 
@@ -58,7 +58,11 @@ int checkRootDir()
         // Load "Root Dir"
         int sl = getINodeTable();
         int nsecs = getDataBlock() - getINodeTable();
-        result = vdreadsl(0, sl, nsecs, (char *) &rootDir);
+        int i;
+
+        for (i = 0; i < nsecs; i++)
+            result = vdreadsl(0, sl + i, (char *) &rootDir);
+
         rootDirInMemory = 1;
     }
 

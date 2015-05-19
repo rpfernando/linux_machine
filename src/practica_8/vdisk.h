@@ -10,8 +10,8 @@
   // ======= FUNCTIONS ======
 
   // Logic sector read/write
-  int vdwritesl(int drive, int seclog, int nsecs, char *buffer);
-  int vdreadsl(int drive, int seclog, int nsecs, char *buffer);
+  int vdwritesl(int drive, int seclog, char *buffer);
+  int vdreadsl(int drive, int seclog, char *buffer);
 
   // Sector read/write
   int vdwritesector(int drive, int head, int cylinder, int sector, int nsecs, char *buffer);

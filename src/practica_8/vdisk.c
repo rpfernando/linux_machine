@@ -5,23 +5,23 @@ void performDelay(int drive, int cylinder, int sector);
 int currentcyl[4] = {0, 0, 0, 0};
 int currentsec[4] = {0, 0, 0, 0};
 
-int vdwritesl(int drive, int seclog, int nsecs, char *buffer)
+int vdwritesl(int drive, int seclog, char *buffer)
 {
     int nsec = getsec(seclog);
     int ncyl = getcyl(seclog);
     int nhead = gethead(seclog);
 
-    return vdwritesector(drive, nhead, ncyl, nsec, nsecs, buffer);
+    return vdwritesector(drive, nhead, ncyl, nsec, 1, buffer);
 }
 
-int vdreadsl(int drive, int seclog, int nsecs, char *buffer)
+int vdreadsl(int drive, int seclog, char *buffer)
 {
     // int drive = 0;
     int nsec = getsec(seclog);
     int ncyl = getcyl(seclog);
     int nhead = gethead(seclog);
 
-    return vdreadsector(drive, nhead, ncyl, nsec, nsecs, buffer);
+    return vdreadsector(drive, nhead, ncyl, nsec, 1, buffer);
 }
 
 int vdwritesector(int drive, int head, int cylinder, int sector, int nsecs, char *buffer)
@@ -92,6 +92,8 @@ int isValid(int drive, int head, int cylinder, int sector, int nsecs) {
     if (sector < 1 || sector > SECTORS)
         return NO;
 
+    if (sector + nsecs - 1 > SECTORS)
+        return NO;
 
     return YES;
 }

@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	if (vdreadsl(0, seclog, 1, (char*)buffer) == -1)
+	if (vdreadsl(0, seclog, (char*)buffer) == -1)
 	{
 		fprintf(stderr,"Error al abrir disco virtual\n");
 		exit(1);

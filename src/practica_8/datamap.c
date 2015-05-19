@@ -22,9 +22,9 @@ int nextFreeBlock()
         return ERROR;
 
     // Check byte by byte
-    for (i = 0; dataMap[i] == 0xFF && i < 4; i++);
+    for (i = 0; dataMap[i] == 0xFF && i < secBoot.sec_mapa_bits_bloques * SECSIZE; i++);
 
-    if (i < 4)
+    if (i < secBoot.sec_mapa_bits_bloques * SECSIZE)
     {
         // Check bit by bit
         for (j = 0; dataMap[i] & (1 << j) && j < 8; j++);
@@ -46,7 +46,7 @@ int assignBlock(int block)
     // Mark block as not free
     dataMap[offset] |= (1 << shift);
 
-    if (vdwritesl(0, getDataMap(), 1, dataMap) == ERROR)
+    if (vdwritesl(0, getDataMap(), dataMap) == ERROR)
         return ERROR;
 
     return SUCCESS;
@@ -64,7 +64,7 @@ int unassignBlock(int block)
     // Mark block as free
     dataMap[offset] &= (char) ~(1 << shift);
 
-    if (vdwritesl(0, getDataMap(), 1, dataMap) == ERROR)
+    if (vdwritesl(0, getDataMap(), dataMap) == ERROR)
         return ERROR;
 
     return SUCCESS;
@@ -75,14 +75,17 @@ int unassignBlock(int block)
 int writeBlock(int block, char *buffer)
 {
     int dataAreaStart = getDataBlock();
+    int i;
 
     if (checkSecBoot() == ERROR)
         return ERROR;
 
     /* Calcular el primer sector que corresponde a un bloque de datos */
-
-    if (vdwritesl(0, dataAreaStart + (block - 1) * secBoot.sec_x_bloque, secBoot.sec_x_bloque, buffer) == ERROR)
-        return ERROR;
+    for (i = 0; i < secBoot.sec_x_bloque; i++)
+    {        
+        if (vdwritesl(0, dataAreaStart + (block - 1) * secBoot.sec_x_bloque + i, buffer + 512 * i) == ERROR)
+            return ERROR;
+    }
 
     return SUCCESS;
 }
@@ -90,13 +93,16 @@ int writeBlock(int block, char *buffer)
 int readBlock(int block, char *buffer)
 {
     int dataAreaStart = getDataBlock();
+    int i;
 
     if (checkSecBoot() == ERROR)
         return ERROR;
 
-
-    if (vdreadsl(0, dataAreaStart + (block - 1) * secBoot.sec_x_bloque, secBoot.sec_x_bloque, buffer) == ERROR)
-        return ERROR;
+    for (i = 0; i < secBoot.sec_x_bloque; i++)
+    {        
+        if (vdreadsl(0, dataAreaStart + (block - 1) * secBoot.sec_x_bloque + i, buffer + 512 * i) == ERROR)
+            return ERROR;
+    }
 
     return SUCCESS;
 }

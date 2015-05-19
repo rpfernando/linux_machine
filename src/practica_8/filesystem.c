@@ -268,7 +268,7 @@ int vdwrite(int fd, char *buffer, int size)
             // Escribir el sector de la tabla de nodos i
             // En el disco
             sector = (currinode/8)*8;
-            result = vdwritesl(0, inicio_nodos_i+sector, 1, (char *) &rootDir[sector*8]);
+            result = vdwritesl(0, inicio_nodos_i+sector, (char *) &rootDir[sector*8]);
         }
 
         // Si el bloque de la posición actual no está en memoria
@@ -301,8 +301,6 @@ int vdwrite(int fd, char *buffer, int size)
     if(cont % BLOCKSIZE != 0) {
         writeBlock(currblock, openfiles[fd].buffer);
     }
-    sector = (currinode/8)*8;
-    result = vdwritesl(0, inicio_nodos_i+sector, 1, (char *) &rootDir[sector*8]);
     return(cont);
 }
 
@@ -318,13 +316,16 @@ int vdclose(int fd)
     openfiles[fd].iNode = 0;
     openfiles[fd].currPos = 0;
 
+    // Save indirect pointers
+    writeBlock(rootDir[openfiles[fd].iNode].indirect, (char *)openfiles[fd].indirectBuff);
+
     return SUCCESS;
 }
 
 VDDIR* vdopendir(char* dir)
 {
     if (checkRootDir() == ERROR)
-        return ERROR;
+        return NULL;
 
     if (strcmp(dir, ".") != 0)
         return NULL;
@@ -344,7 +345,7 @@ VDDIR* vdopendir(char* dir)
 struct VDDIRENT* vdreaddir(VDDIR* dir)
 {
     if (checkRootDir() == ERROR)
-        return ERROR;
+        return NULL;
 
     // Mientras no haya nodo i, avanza
     while(isINodeFree(*dir) && *dir < 4096) (*dir)++;
@@ -362,7 +363,7 @@ struct VDDIRENT* vdreaddir(VDDIR* dir)
 
 int vdclosedir(VDDIR* dir)
 {
-    dir = -1;
+    (*dir) = -1;
     return 0;
 }
 
@@ -394,10 +395,10 @@ unsigned short *postoptr(int fd, int pos, int is_read)
             // El primer bloque disponible
             indirect1 = nextFreeBlock();
             assignBlock(indirect1); // Asígnalo
-            rootDir[currinode].indirect = indirect1;
+            rootDir[currinode].indirect = indirect1;           
             sector = (currinode/8)*8;
-            vdwritesl(0, getINodeTable()+sector, 1, (char *) &rootDir[sector*8]);
-            readBlock(indirect1, (char *) openfiles[fd].indirectBuff);
+            vdwritesl(0, getINodeTable()+sector, (char *) &rootDir[sector*8]);
+            writeBlock(indirect1, (char *) openfiles[fd].indirectBuff);
         }
         currptr = &openfiles[fd].indirectBuff[currblock-10];
     }

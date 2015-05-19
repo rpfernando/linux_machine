@@ -47,7 +47,7 @@ int assignINode(int inode)
 
     // Mark I Node as not free
     iNodesMap[offset] |= (1 << shift);
-    if (vdwritesl(0, getINodesMap(), 1, iNodesMap) == ERROR)
+    if (vdwritesl(0, getINodesMap(), iNodesMap) == ERROR)
         return ERROR;
 
     return SUCCESS;
@@ -64,7 +64,7 @@ int unassignINode(int inode)
 
     // Mark I Node as free
     iNodesMap[offset] &= (char) ~(1 << shift);
-    if (vdwritesl(0, getINodesMap(), 1, iNodesMap) == ERROR)
+    if (vdwritesl(0, getINodesMap(), iNodesMap) == ERROR)
         return ERROR;
 
     return SUCCESS;
@@ -87,7 +87,6 @@ int setninode(int num, char *filename,unsigned short atribs, int uid, int gid)
     checkSecBoot();
     checkRootDir();
 
-
     strncpy(rootDir[num].name, filename, 20);
 
     if(strlen(rootDir[num].name) > 19)
@@ -109,9 +108,9 @@ int setninode(int num, char *filename,unsigned short atribs, int uid, int gid)
     // Optimizar la escritura escribiendo solo el sector lógico que
     // corresponde al inodo que estamos asignando.
     // i=num/8;
-    // result=vdwritesl(0, inicio_nodos_i+i, 1,&rootDir[i*8]);
+    // result=vdwritesl(0, inicio_nodos_i+i, &rootDir[i*8]);
     for(i = 0; i < secBoot.sec_tabla_nodos_i; i++)
-        result=vdwritesl(0, inicio_nodos_i+i, 1, (char *) &rootDir[i*8]);
+        result=vdwritesl(0, inicio_nodos_i+i, (char *) &rootDir[i*8]);
 
     return num;
 }
