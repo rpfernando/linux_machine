@@ -97,6 +97,7 @@ int vdunlink(char *filename)
     numinode = searchinode(filename);
     if(numinode == -1) return -1; // No existe
 
+    removeinode(numinode);
     setninode(numinode, "", 0, getuid(), getgid());
     removeinode(numinode);
     return 0;
@@ -174,9 +175,7 @@ int vdread(int fd, char *buffer, int size)
     int currblock;
     int currinode;
     int cont = 0;
-    int sector;
     int i;
-    int result;
     unsigned short *currptr;
 
     // Si no está abierto, regresa error
@@ -220,7 +219,7 @@ int vdread(int fd, char *buffer, int size)
         // Incrementa el contador
         cont++;
 
-        if (rootDir[openfiles[fd].iNode].size < cont) return cont;
+        if (rootDir[openfiles[fd].iNode].size <= openfiles[fd].currPos) return cont;
     }
     return size;
 }
