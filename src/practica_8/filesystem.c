@@ -1,7 +1,7 @@
 #include "filesystem.h"
 
-unsigned short *postoptr(int fd, int pos);
-unsigned short *currpostoptr(int fd);
+unsigned short *postoptr(int fd, int pos, int is_read);
+unsigned short *currpostoptr(int fd, int is_read);
 
 // Create a new file (file remains open)
 int vdcreat(char *filename, unsigned short mode)
@@ -82,7 +82,7 @@ int vdopen(char *filename, unsigned short mode)
     }
 
     // Cargar el buffer con el bloque actual del archivo (primer bloque)
-    currblock = *currpostoptr(i);
+    currblock = *currpostoptr(i, 1);
     readBlock(currblock, openfiles[i].buffer);
     return i;
 }
@@ -112,7 +112,7 @@ int vdseek(int fd, int offset, int whence)
     if(openfiles[fd].inUse == 0)
         return -1;
 
-    oldblock = *currpostoptr(fd);
+    oldblock = *currpostoptr(fd, 1);
 
     if(whence == WHENCE_BEG) // A partir del inicio
     {
@@ -157,7 +157,7 @@ int vdseek(int fd, int offset, int whence)
         return -1;
     }
 
-    newblock = *currpostoptr(fd);
+    newblock = *currpostoptr(fd, 1);
 
     if(newblock != oldblock)
     {
@@ -188,7 +188,7 @@ int vdread(int fd, char *buffer, int size)
     {
         // Obtener la dirección de donde está el bloque que corresponde
         // a la posición actual
-        currptr = currpostoptr(fd);
+        currptr = currpostoptr(fd, 1);
         if(currptr == NULL)
             return -1;
 
@@ -248,7 +248,7 @@ int vdwrite(int fd, char *buffer, int size)
     {
         // Obtener la dirección de donde está el bloque que corresponde
         // a la posición actual
-        currptr = currpostoptr(fd);
+        currptr = currpostoptr(fd, 0);
         if(currptr == NULL)
             return -1;
 
@@ -296,7 +296,7 @@ int vdwrite(int fd, char *buffer, int size)
         if(openfiles[fd].currPos % BLOCKSIZE == 0)
             writeBlock(currblock,openfiles[fd].buffer);
     }
-    if(cont % 4096 != 0) {
+    if(cont % BLOCKSIZE != 0) {
         writeBlock(currblock, openfiles[fd].buffer);
     }
     return(cont);
@@ -367,7 +367,7 @@ int vdclosedir(VDDIR* dir)
 // del archivo, me devuelve un apuntador al campo del inodo
 // o del bloque de apuntadores que contiene el bloque que
 // le corresponde a esa posición.
-unsigned short *postoptr(int fd, int pos)
+unsigned short *postoptr(int fd, int pos, int is_read)
 {
     int currinode;
     int sector;
@@ -383,6 +383,7 @@ unsigned short *postoptr(int fd, int pos)
         currptr = &rootDir[currinode].blocks[currblock];
     else if(currblock < (PTRxBLOCK+10))
     {
+        if (is_read && rootDir[currinode].indirect == 0) return NULL;
         // Si el indirecto está vacío, asígnale un bloque
         if(rootDir[currinode].indirect == 0)
         {
@@ -407,11 +408,11 @@ unsigned short *postoptr(int fd, int pos)
 // Toma la posición del cursor del archivo como valor
 // y a partir de ahí nos devuelve la dirección de memoria
 // donde está el bloque que le corresponde.
-unsigned short *currpostoptr(int fd)
+unsigned short *currpostoptr(int fd, int is_read)
 {
     unsigned short *currptr;
 
-    currptr=postoptr(fd,openfiles[fd].currPos);
+    currptr=postoptr(fd,openfiles[fd].currPos, is_read);
 
     return(currptr);
 }
