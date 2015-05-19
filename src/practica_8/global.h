@@ -30,7 +30,7 @@
   #define MAXLEN 80
   #define BUFFERSIZE 512
 
-  #define DIRDEPTH 1
+  #define DIRDEPTH 2
   // ====== STRUCTURES ======
 
   struct INODE {
@@ -78,8 +78,8 @@
     unsigned short iNode;
     int currPos;
     int currBlockInMemory;
-    char buffer[2048];
-    unsigned short indirectBuff[1024];
+    char buffer[BLOCKSIZE];
+    unsigned short indirectBuff[PTRxBLOCK];
   };
 
 
