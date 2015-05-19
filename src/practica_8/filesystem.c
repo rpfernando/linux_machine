@@ -49,6 +49,7 @@ int vdcreat(char *filename, unsigned short mode)
     openfiles[i].inUse = 1;
     openfiles[i].iNode = numinode;
     openfiles[i].currPos = 0;
+    openfiles[i].currBlockInMemory = 0;
     return i;
 }
 
@@ -75,6 +76,7 @@ int vdopen(char *filename, unsigned short mode)
     openfiles[i].inUse = 1;
     openfiles[i].iNode = numinode;
     openfiles[i].currPos = 0;
+    openfiles[i].currBlockInMemory = 0;
 
     // Si hay apuntador indirecto, leerlo en el buffer
     if(rootDir[numinode].indirect != 0) {

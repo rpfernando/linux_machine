@@ -92,8 +92,6 @@ int isValid(int drive, int head, int cylinder, int sector, int nsecs) {
     if (sector < 1 || sector > SECTORS)
         return NO;
 
-    if (sector + nsecs - 1 > SECTORS)
-        return NO;
 
     return YES;
 }
