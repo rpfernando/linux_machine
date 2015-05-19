@@ -299,6 +299,8 @@ int vdwrite(int fd, char *buffer, int size)
     if(cont % BLOCKSIZE != 0) {
         writeBlock(currblock, openfiles[fd].buffer);
     }
+    sector = (currinode/8)*8;
+    result = vdwritesl(0, inicio_nodos_i+sector, 1, (char *) &rootDir[sector*8]);
     return(cont);
 }
 
